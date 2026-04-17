@@ -1,52 +1,61 @@
 import { useState } from 'react';
 import { useGames } from './hooks/useGames';
 import { GameList } from './components/GameList';
+import { GameSetup } from './components/GameSetup';
 import { GameDetail } from './components/GameDetail';
-import type { Game } from './types';
+import type { Game, Player } from './types';
+
+type AppView = { kind: 'list' } | { kind: 'setup' } | { kind: 'game'; gameId: string };
 
 function App() {
   const {
     games,
     createGame,
     deleteGame,
-    updateGame,
-    addPlayer,
-    deletePlayer,
-    movePlayerUp,
-    movePlayerDown,
     addRound,
     deleteLastRound,
+    resetGame,
   } = useGames();
 
-  const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
+  const [view, setView] = useState<AppView>({ kind: 'list' });
 
-  const selectedGame = selectedGameId ? games.find(g => g.id === selectedGameId) : null;
+  const selectedGame =
+    view.kind === 'game' ? games.find(g => g.id === view.gameId) ?? null : null;
 
-  function handleCreateGame(name: string) {
-    const newGame = createGame(name);
-    setSelectedGameId(newGame.id);
+  function handleNewGame() {
+    setView({ kind: 'setup' });
+  }
+
+  function handleSetupStart(name: string, players: Player[], mode: 'highest' | 'lowest', threshold: number) {
+    const game: Game = createGame(name, players, mode, threshold);
+    setView({ kind: 'game', gameId: game.id });
   }
 
   function handleSelectGame(game: Game) {
-    setSelectedGameId(game.id);
+    setView({ kind: 'game', gameId: game.id });
   }
 
   function handleBack() {
-    setSelectedGameId(null);
+    setView({ kind: 'list' });
   }
 
-  if (selectedGame) {
+  if (view.kind === 'setup') {
+    return (
+      <GameSetup
+        onStart={handleSetupStart}
+        onCancel={handleBack}
+      />
+    );
+  }
+
+  if (view.kind === 'game' && selectedGame) {
     return (
       <GameDetail
         game={selectedGame}
         onBack={handleBack}
-        onUpdateGame={updateGame}
-        onAddPlayer={addPlayer}
-        onDeletePlayer={deletePlayer}
-        onMovePlayerUp={movePlayerUp}
-        onMovePlayerDown={movePlayerDown}
         onAddRound={addRound}
         onDeleteLastRound={deleteLastRound}
+        onResetGame={resetGame}
       />
     );
   }
@@ -55,7 +64,7 @@ function App() {
     <GameList
       games={games}
       onSelectGame={handleSelectGame}
-      onCreateGame={handleCreateGame}
+      onNewGame={handleNewGame}
       onDeleteGame={deleteGame}
     />
   );
