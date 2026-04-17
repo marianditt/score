@@ -10,7 +10,14 @@ export function generateId(): string {
 function loadGames(): Game[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    // Handle versioned envelope { version, games } written by a previous deployment
+    if (Array.isArray(parsed)) return parsed as Game[];
+    if (typeof parsed === 'object' && parsed !== null && Array.isArray((parsed as Record<string, unknown>).games)) {
+      return (parsed as { games: Game[] }).games;
+    }
+    return [];
   } catch {
     return [];
   }
