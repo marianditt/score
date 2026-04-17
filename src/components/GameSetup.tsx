@@ -8,6 +8,10 @@ interface GameSetupProps {
   onCancel: () => void;
 }
 
+// Score threshold must be strictly positive; 0.001 is the smallest step
+// that avoids the edge case of threshold = 0 while remaining user-friendly
+const MIN_THRESHOLD = 0.001;
+
 export function GameSetup({ onStart, onCancel }: GameSetupProps) {
   const { t } = useLanguage();
   const [gameName, setGameName] = useState('');
@@ -249,7 +253,7 @@ export function GameSetup({ onStart, onCancel }: GameSetupProps) {
                   value={threshold}
                   onChange={handleThresholdChange}
                   placeholder={t('thresholdPlaceholder')}
-                  min="0.001"
+                  min={MIN_THRESHOLD}
                   step="any"
                   required
                   aria-required="true"

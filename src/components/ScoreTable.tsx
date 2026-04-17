@@ -37,6 +37,15 @@ function getLeadersAndWinners(game: Game): { leaderIds: string[]; winnerIds: str
   }
 }
 
+/** Returns the first letter of each word in the name, upper-cased. */
+function getBasicInitials(name: string): string {
+  return (
+    name.trim().split(/\s+/).map(w => w[0] ?? '').join('').toUpperCase() ||
+    name[0]?.toUpperCase() ||
+    '?'
+  );
+}
+
 /**
  * Compute compact initials for every player, breaking ties by extending the
  * first word character by character until all initials in the group are unique.
@@ -49,30 +58,28 @@ function getLeadersAndWinners(game: Game): { leaderIds: string[]; winnerIds: str
 function computeAllInitials(players: { id: string; name: string }[]): Record<string, string> {
   if (players.length === 0) return {};
 
-  const basicInitials = (name: string): string =>
-    name.trim().split(/\s+/).map(w => w[0] ?? '').join('').toUpperCase() ||
-    name[0]?.toUpperCase() ||
-    '?';
-
   // Group players that share the same basic initials
   const groups = new Map<string, typeof players>();
   for (const player of players) {
-    const key = basicInitials(player.name);
+    const key = getBasicInitials(player.name);
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key)!.push(player);
   }
 
   const result: Record<string, string> = {};
 
+  // Maximum first-word extension length — 12 covers even long first names
+  const MAX_EXTENSION = 12;
+
   for (const [, group] of groups) {
     if (group.length === 1) {
-      result[group[0].id] = basicInitials(group[0].name);
+      result[group[0].id] = getBasicInitials(group[0].name);
       continue;
     }
 
     // Collision: extend the first word one character at a time
     let resolved = false;
-    for (let extraLen = 2; extraLen <= 12; extraLen++) {
+    for (let extraLen = 2; extraLen <= MAX_EXTENSION; extraLen++) {
       const candidates = group.map(p => {
         const words = p.name.trim().split(/\s+/);
         return (words[0] ?? '').substring(0, extraLen).toUpperCase() +
