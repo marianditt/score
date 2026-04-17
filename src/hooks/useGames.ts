@@ -3,7 +3,7 @@ import type { Game, Player } from '../types';
 
 const STORAGE_KEY = 'score-tracker-games';
 
-function generateId(): string {
+export function generateId(): string {
   return Math.random().toString(36).substring(2, 9);
 }
 
@@ -27,13 +27,18 @@ export function useGames() {
     saveGames(games);
   }, [games]);
 
-  const createGame = useCallback((name: string): Game => {
+  const createGame = useCallback((
+    name: string,
+    players: Player[],
+    mode: 'highest' | 'lowest',
+    threshold: number,
+  ): Game => {
     const newGame: Game = {
       id: generateId(),
       name,
-      players: [],
-      threshold: 100,
-      mode: 'highest',
+      players,
+      threshold,
+      mode,
       createdAt: Date.now(),
     };
     setGames(prev => [...prev, newGame]);
@@ -117,6 +122,16 @@ export function useGames() {
     }));
   }, []);
 
+  const resetGame = useCallback((gameId: string) => {
+    setGames(prev => prev.map(g => {
+      if (g.id !== gameId) return g;
+      return {
+        ...g,
+        players: g.players.map(p => ({ ...p, scores: [] })),
+      };
+    }));
+  }, []);
+
   return {
     games,
     createGame,
@@ -128,5 +143,6 @@ export function useGames() {
     movePlayerDown,
     addRound,
     deleteLastRound,
+    resetGame,
   };
 }
