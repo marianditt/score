@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import type { Game } from '../types';
 
 interface AddRoundProps {
@@ -14,12 +14,14 @@ export function AddRound({ game, onAddRound }: AddRoundProps) {
   });
   const firstInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
+  const [prevPlayerIds, setPrevPlayerIds] = useState(() => game.players.map(p => p.id).join(','));
+  const currentPlayerIds = game.players.map(p => p.id).join(',');
+  if (prevPlayerIds !== currentPlayerIds) {
+    setPrevPlayerIds(currentPlayerIds);
     const init: Record<string, string> = {};
     game.players.forEach(p => { init[p.id] = scores[p.id] ?? ''; });
     setScores(init);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [game.players.length]);
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
