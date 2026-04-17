@@ -31,6 +31,13 @@ export function GameSetup({ onStart, onCancel }: GameSetupProps) {
     setPlayers(prev => prev.filter(p => p.id !== id));
   }
 
+  function handlePlayerInputKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddPlayer(e);
+    }
+  }
+
   function handleMoveUp(idx: number) {
     if (idx <= 0) return;
     setPlayers(prev => {
@@ -162,7 +169,7 @@ export function GameSetup({ onStart, onCancel }: GameSetupProps) {
                 type="text"
                 value={newPlayerName}
                 onChange={e => setNewPlayerName(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddPlayer(e); } }}
+                onKeyDown={handlePlayerInputKeyDown}
                 placeholder="Player name…"
                 aria-label="New player name"
                 className="flex-1 bg-gray-700 border border-gray-600 text-white placeholder-gray-500 rounded-lg px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"

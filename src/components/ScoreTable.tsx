@@ -50,7 +50,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
   useEffect(() => {
     setCurrentScores(initScores());
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playerIds, roundCount === 0 ? 'reset' : 'running']);
+  }, [playerIds, roundCount]);
 
   const { leaderId, winnerId } = getLeaderAndWinner(game);
 

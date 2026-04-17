@@ -44,7 +44,6 @@ export function GameList({ games, onSelectGame, onNewGame, onDeleteGame }: GameL
   }
 
   const sortedGames = [...games].sort((a, b) => b.createdAt - a.createdAt);
-  const leader = (game: Game) => getLeader(game);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4 sm:p-8">
@@ -76,7 +75,7 @@ export function GameList({ games, onSelectGame, onNewGame, onDeleteGame }: GameL
           <ul className="space-y-3" role="list" aria-label="Saved games">
             {sortedGames.map(game => {
               const roundCount = game.players[0]?.scores.length ?? 0;
-              const gameLeader = leader(game);
+              const gameLeader = getLeader(game);
               return (
                 <li key={game.id}>
                   <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 hover:border-indigo-500 rounded-xl p-3 transition-colors">
