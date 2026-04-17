@@ -7,10 +7,37 @@ export function generateId(): string {
   return Math.random().toString(36).substring(2, 9);
 }
 
+function migratePlayer(raw: unknown): Player {
+  const obj = (raw !== null && typeof raw === 'object') ? raw as Record<string, unknown> : {};
+  return {
+    id:     typeof obj.id     === 'string' ? obj.id     : generateId(),
+    name:   typeof obj.name   === 'string' ? obj.name   : 'Player',
+    scores: Array.isArray(obj.scores)
+      ? obj.scores.filter((s): s is number => typeof s === 'number')
+      : [],
+  };
+}
+
+function migrateGame(raw: unknown): Game | null {
+  if (raw === null || typeof raw !== 'object') return null;
+  const obj = raw as Record<string, unknown>;
+  return {
+    id:        typeof obj.id        === 'string'                                  ? obj.id        : generateId(),
+    name:      typeof obj.name      === 'string'                                  ? obj.name      : 'Unnamed Game',
+    mode:      obj.mode === 'highest' || obj.mode === 'lowest'                    ? obj.mode      : 'highest',
+    threshold: typeof obj.threshold === 'number' && obj.threshold > 0             ? obj.threshold : 100,
+    createdAt: typeof obj.createdAt === 'number'                                  ? obj.createdAt : 0,
+    players:   Array.isArray(obj.players) ? obj.players.map(migratePlayer)        : [],
+  };
+}
+
 function loadGames(): Game[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map(migrateGame).filter((g): g is Game => g !== null);
   } catch {
     return [];
   }
