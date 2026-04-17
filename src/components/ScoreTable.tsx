@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import type { Game } from '../types';
 
 interface ScoreTableProps {
@@ -46,11 +46,13 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
   const firstInputRef = useRef<HTMLInputElement>(null);
   const playerIds = game.players.map(p => p.id).join(',');
 
-  // Reset inputs when players change or game is reset (roundCount goes back to 0)
-  useEffect(() => {
+  const [prevPlayerIds, setPrevPlayerIds] = useState(playerIds);
+  const [prevRoundCount, setPrevRoundCount] = useState(roundCount);
+  if (prevPlayerIds !== playerIds || prevRoundCount !== roundCount) {
+    setPrevPlayerIds(playerIds);
+    setPrevRoundCount(roundCount);
     setCurrentScores(initScores());
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playerIds, roundCount]);
+  }
 
   const { leaderId, winnerId } = getLeaderAndWinner(game);
 
