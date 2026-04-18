@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { Game } from '../types';
 import { ScoreTable } from './ScoreTable';
-import { GameSettings } from './GameSettings';
+import { GameEditor } from './GameEditor';
 import { Confetti } from './Confetti';
 import { useLanguage } from '../i18n/index';
 import { useHighContrast } from '../hooks/useHighContrast';
@@ -51,10 +51,13 @@ export function GameDetail({
 
   if (isEditingSettings) {
     return (
-      <GameSettings
+      <GameEditor
         game={game}
-        onSave={updated => { onUpdateGame(updated); setIsEditingSettings(false); }}
-        onClose={() => setIsEditingSettings(false)}
+        onSave={(name, players, mode, threshold) => {
+          onUpdateGame({ ...game, name, players, mode, threshold });
+          setIsEditingSettings(false);
+        }}
+        onCancel={() => setIsEditingSettings(false)}
       />
     );
   }
