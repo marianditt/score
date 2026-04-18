@@ -85,7 +85,6 @@ export interface Translations {
   // Preferences / Accessibility
   language: string;
   highContrast: string;
-  genderToggle: string;
 }
 
 export const translations: Record<Language, Translations> = {
@@ -141,7 +140,6 @@ export const translations: Record<Language, Translations> = {
     saveGameSettings: 'Save',
     language: 'Language',
     highContrast: 'High Contrast',
-    genderToggle: 'Gender',
   },
 
   de: {
@@ -196,7 +194,6 @@ export const translations: Record<Language, Translations> = {
     saveGameSettings: 'Speichern',
     language: 'Sprache',
     highContrast: 'Hoher Kontrast',
-    genderToggle: 'Geschlecht',
   },
 
   zh: {
@@ -251,7 +248,6 @@ export const translations: Record<Language, Translations> = {
     saveGameSettings: '保存',
     language: '语言',
     highContrast: '高对比度',
-    genderToggle: '性别',
   },
 
   hi: {
@@ -306,7 +302,6 @@ export const translations: Record<Language, Translations> = {
     saveGameSettings: 'सहेजें',
     language: 'भाषा',
     highContrast: 'उच्च कंट्रास्ट',
-    genderToggle: 'लिंग',
   },
 
   es: {
@@ -361,7 +356,6 @@ export const translations: Record<Language, Translations> = {
     saveGameSettings: 'Guardar',
     language: 'Idioma',
     highContrast: 'Alto contraste',
-    genderToggle: 'Género',
   },
 
   fr: {
@@ -416,7 +410,6 @@ export const translations: Record<Language, Translations> = {
     saveGameSettings: 'Enregistrer',
     language: 'Langue',
     highContrast: 'Contraste élevé',
-    genderToggle: 'Genre',
   },
 
   ar: {
@@ -471,7 +464,6 @@ export const translations: Record<Language, Translations> = {
     saveGameSettings: 'حفظ',
     language: 'اللغة',
     highContrast: 'تباين عالٍ',
-    genderToggle: 'الجنس',
   },
 
   bn: {
@@ -526,7 +518,6 @@ export const translations: Record<Language, Translations> = {
     saveGameSettings: 'সংরক্ষণ করুন',
     language: 'ভাষা',
     highContrast: 'উচ্চ কনট্রাস্ট',
-    genderToggle: 'লিঙ্গ',
   },
 
   pt: {
@@ -581,7 +572,6 @@ export const translations: Record<Language, Translations> = {
     saveGameSettings: 'Salvar',
     language: 'Idioma',
     highContrast: 'Alto contraste',
-    genderToggle: 'Gênero',
   },
 };
 
