@@ -36,8 +36,8 @@ interface GameListProps {
   onToggleHighContrast: () => void;
 }
 
-function getTotal(scores: number[]): number {
-  return scores.reduce((a, b) => a + b, 0);
+function getTotal(scores: (number | null)[]): number {
+  return scores.reduce((a: number, b) => a + (b ?? 0), 0);
 }
 
 function getLeader(game: Game): { name: string; gender: 'male' | 'female' } | null {
