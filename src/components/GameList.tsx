@@ -172,7 +172,7 @@ export function GameList({ games, onSelectGame, onNewGame, onDeleteGame, highCon
                   <Paper
                     variant="outlined"
                     sx={{
-                      borderRadius: 3,
+                      borderRadius: 1.5,
                       overflow: 'hidden',
                       '&:hover': { borderColor: 'primary.dark' },
                       transition: 'border-color 0.2s',
