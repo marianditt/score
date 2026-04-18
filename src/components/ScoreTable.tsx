@@ -318,6 +318,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                             inputMode: 'numeric' as const,
                             style: { textAlign: 'center', padding: '4px 2px' },
                             onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => handleInputKeyDown(e, idx),
+                            onFocus: (e: React.FocusEvent<HTMLInputElement>) => e.target.scrollIntoView({ block: 'nearest', inline: 'nearest' }),
                           },
                         }}
                         variant="outlined"
