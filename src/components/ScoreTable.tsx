@@ -169,7 +169,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
           variant="outlined"
           role="region"
           aria-label="Score table"
-          sx={{ borderRadius: 3, overflowX: 'auto' }}
+          sx={{ borderRadius: 1.5, overflowX: 'auto' }}
         >
           <Table size="small" sx={{ tableLayout: 'fixed', width: '100%', minWidth: 36 + playerCount * MIN_COL_WIDTH }}>
             <TableHead>
@@ -389,7 +389,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
               top: 0,
               bottom: 0,
               width: 48,
-              borderRadius: '0 12px 12px 0',
+              borderRadius: '0 6px 6px 0',
               background: theme => `linear-gradient(to right, transparent, ${theme.palette.background.paper})`,
               pointerEvents: 'none',
             }}
