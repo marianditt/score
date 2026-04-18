@@ -11,10 +11,6 @@ import { GameSettingsPage } from './GameSettingsPage';
  * Tests read like acceptance criteria — no Gherkin / Cucumber needed.
  */
 export interface ScoreTrackerFixtures {
-  gameListPage: GameListPage;
-  gameSetupPage: GameSetupPage;
-  gameDetailPage: GameDetailPage;
-  gameSettingsPage: GameSettingsPage;
   given: {
     /** Navigate to the app and clear any persisted state. */
     theAppIsOpenWithNoSavedGames: () => Promise<GameListPage>;
@@ -86,22 +82,6 @@ export interface ScoreTrackerFixtures {
 }
 
 export const test = base.extend<ScoreTrackerFixtures>({
-  gameListPage: async ({ page }, use) => {
-    await use(new GameListPage(page));
-  },
-
-  gameSetupPage: async ({ page }, use) => {
-    await use(new GameSetupPage(page));
-  },
-
-  gameDetailPage: async ({ page }, use) => {
-    await use(new GameDetailPage(page));
-  },
-
-  gameSettingsPage: async ({ page }, use) => {
-    await use(new GameSettingsPage(page));
-  },
-
   given: async ({ page }, use) => {
     const given = {
       theAppIsOpenWithNoSavedGames: async (): Promise<GameListPage> => {
@@ -302,17 +282,17 @@ export const test = base.extend<ScoreTrackerFixtures>({
         }
       },
 
-      theGameShowsModeInList: async (list: GameListPage, gameName: string, mode: 'highest' | 'lowest'): Promise<void> => {
+      theGameShowsModeInList: async (_list: GameListPage, _gameName: string, mode: 'highest' | 'lowest'): Promise<void> => {
         const label = mode === 'highest' ? '↑ Highest wins' : '↓ Lowest wins';
         await expect(page.getByText(label).first()).toBeVisible();
       },
 
-      theGameShowsLeaderInList: async (list: GameListPage, leaderName: string): Promise<void> => {
+      theGameShowsLeaderInList: async (_list: GameListPage, leaderName: string): Promise<void> => {
         await expect(page.getByText(`Leader:`).first()).toBeVisible();
         await expect(page.getByText(leaderName).first()).toBeVisible();
       },
 
-      theGameShowsRoundCountInList: async (list: GameListPage, _gameName: string, count: number): Promise<void> => {
+      theGameShowsRoundCountInList: async (_list: GameListPage, _gameName: string, count: number): Promise<void> => {
         await expect(page.getByText(`${count} round${count !== 1 ? 's' : ''}`).first()).toBeVisible();
       },
 
@@ -322,6 +302,36 @@ export const test = base.extend<ScoreTrackerFixtures>({
 
       theGenderToggleIsHidden: async (list: GameListPage): Promise<void> => {
         await expect(list.genderToggle).not.toBeVisible();
+      },
+
+      theConfettiIsVisible: async (detail: GameDetailPage): Promise<void> => {
+        await expect(detail.confetti).toBeVisible();
+      },
+
+      theConfettiIsHidden: async (detail: GameDetailPage): Promise<void> => {
+        await expect(detail.confetti).not.toBeAttached();
+      },
+
+      theSaveRoundButtonIsHidden: async (detail: GameDetailPage, roundNumber: number): Promise<void> => {
+        await expect(detail.saveRoundButton(roundNumber)).not.toBeAttached();
+      },
+
+      theUndoRoundButtonIsVisible: async (detail: GameDetailPage, roundNumber: number): Promise<void> => {
+        await expect(detail.undoRoundButton(roundNumber)).toBeVisible();
+      },
+
+      theMultiplePlayersAreLeaders: async (detail: GameDetailPage, playerNames: string[]): Promise<void> => {
+        for (const name of playerNames) {
+          await expect(detail.page.getByRole('columnheader').filter({ hasText: name })
+            .getByLabel('Current leader')).toBeVisible();
+        }
+      },
+
+      theMultiplePlayersAreWinners: async (detail: GameDetailPage, playerNames: string[]): Promise<void> => {
+        for (const name of playerNames) {
+          await expect(detail.page.getByRole('columnheader').filter({ hasText: name })
+            .getByLabel('Winner')).toBeVisible();
+        }
       },
     };
     await use(then);
