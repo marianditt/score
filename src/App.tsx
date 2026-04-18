@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { useGames } from './hooks/useGames';
@@ -26,24 +26,38 @@ function App() {
 
   const [view, setView] = useState<AppView>({ kind: 'list' });
 
+  // Sync browser history with in-app navigation so the browser back button/swipe works
+  useEffect(() => {
+    function handlePopState() {
+      setView({ kind: 'list' });
+    }
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   const selectedGame =
     view.kind === 'game' ? games.find(g => g.id === view.gameId) ?? null : null;
 
   function handleNewGame() {
+    window.history.pushState(null, '');
     setView({ kind: 'setup' });
   }
 
   function handleSetupStart(name: string, players: Player[], mode: 'highest' | 'lowest', threshold: number) {
     const game: Game = createGame(name, players, mode, threshold);
+    // Replace the setup history entry with the game entry so back goes straight to list
+    window.history.replaceState(null, '');
     setView({ kind: 'game', gameId: game.id });
   }
 
   function handleSelectGame(game: Game) {
+    window.history.pushState(null, '');
     setView({ kind: 'game', gameId: game.id });
   }
 
   function handleBack() {
-    setView({ kind: 'list' });
+    // Let history.back() trigger the popstate listener, which will set the view.
+    window.history.back();
   }
 
   const activeTheme = highContrast ? highContrastTheme : darkTheme;
