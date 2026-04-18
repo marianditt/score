@@ -1,8 +1,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { translations, LANGUAGES, RTL_LANGUAGES, LANGUAGE_NAMES, GENDERED_LANGUAGES, femaleTranslations, type Language, type Gender } from './translations';
+import { translations, femaleTranslations, LANGUAGES, RTL_LANGUAGES, LANGUAGE_NAMES, type Language } from './translations';
 
 const LANGUAGE_STORAGE_KEY = 'score-tracker-language';
-const GENDER_STORAGE_KEY = 'score-tracker-gender';
 
 interface LanguageContextValue {
   language: Language;
@@ -11,9 +10,7 @@ interface LanguageContextValue {
   isRTL: boolean;
   availableLanguages: typeof LANGUAGES;
   languageNames: typeof LANGUAGE_NAMES;
-  gender: Gender;
-  setGender: (g: Gender) => void;
-  isGendered: boolean;
+  getGenderedT: (gender: 'male' | 'female') => (typeof translations)['en'];
 }
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
@@ -35,25 +32,21 @@ function detectLanguage(): Language {
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>(detectLanguage);
-  const [gender, setGenderState] = useState<Gender>(() => {
-    return (localStorage.getItem(GENDER_STORAGE_KEY) as Gender | null) ?? 'male';
-  });
 
   const isRTL = RTL_LANGUAGES.has(language);
-  const isGendered = GENDERED_LANGUAGES.has(language);
-
-  const baseTrans = translations[language];
-  const femaleTrans = (gender === 'female' && isGendered) ? femaleTranslations[language] : undefined;
-  const t = femaleTrans ? { ...baseTrans, ...femaleTrans } : baseTrans;
+  const t = translations[language];
 
   function setLanguage(lang: Language) {
     setLanguageState(lang);
     localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
   }
 
-  function setGender(g: Gender) {
-    setGenderState(g);
-    localStorage.setItem(GENDER_STORAGE_KEY, g);
+  function getGenderedT(gender: 'male' | 'female'): (typeof translations)['en'] {
+    if (gender === 'female') {
+      const overrides = femaleTranslations[language];
+      if (overrides) return { ...t, ...overrides };
+    }
+    return t;
   }
 
   useEffect(() => {
@@ -62,7 +55,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, [language, isRTL]);
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t, isRTL, availableLanguages: LANGUAGES, languageNames: LANGUAGE_NAMES, gender, setGender, isGendered }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, isRTL, availableLanguages: LANGUAGES, languageNames: LANGUAGE_NAMES, getGenderedT }}>
       {children}
     </LanguageContext.Provider>
   );

@@ -41,7 +41,7 @@ function getLeadersAndWinners(game: Game): { leaderIds: string[]; winnerIds: str
 }
 
 export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTableProps) {
-  const { t } = useLanguage();
+  const { getGenderedT } = useLanguage();
   const { highContrast } = useHighContrast();
   // Use max across all players so newly added players (scores:[]) don't shrink the count
   const roundCount = Math.max(0, ...game.players.map(p => p.scores.length));
@@ -67,6 +67,9 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
 
   const { leaderIds, winnerIds } = getLeadersAndWinners(game);
   const gameOver = winnerIds.length > 0;
+
+  // Use a neutral translation for non-player-specific labels (round, total, etc.)
+  const t = getGenderedT('male');
 
   const playerTotals: Record<string, number> = {};
   game.players.forEach(p => { playerTotals[p.id] = getTotal(p.scores); });
@@ -137,21 +140,38 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
               <th scope="col" className={`text-start ${cellPadding} py-3 font-semibold text-gray-300 w-8 sm:w-24 sticky start-0 bg-gray-800 z-10`}>
                 {t.round}
               </th>
-              {game.players.map(player => (
-                <th
-                  key={player.id}
-                  scope="col"
-                  className={`${cellPadding} py-3 text-center font-semibold ${playerColClass} ${colClass(player.id)}`}
-                >
-                  <div className="flex flex-col items-center justify-center">
-                    <div className="h-5 flex items-center justify-center">
-                      {winnerIds.includes(player.id) && <span aria-label={t.winner} role="img">🏆</span>}
-                      {leaderIds.includes(player.id) && <span aria-label={t.currentLeader} role="img">⭐</span>}
+              {game.players.map(player => {
+                const pt = getGenderedT(player.gender);
+                return (
+                  <th
+                    key={player.id}
+                    scope="col"
+                    className={`${cellPadding} py-3 text-center font-semibold ${playerColClass} ${colClass(player.id)}`}
+                  >
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="h-5 flex items-center justify-center">
+                        {winnerIds.includes(player.id) && (
+                          <span aria-label={pt.winner} role="img">
+                            {/* Trophy icon */}
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-yellow-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                              <path d="M5 3h14v2h2v5a4 4 0 01-4 4 5 5 0 01-4 4v2h2v2H9v-2h2v-2a5 5 0 01-4-4 4 4 0 01-4-4V5h2V3zm2 0v6a3 3 0 006 0V3H7zm-2 2H3v3a2 2 0 002 2V5zm14 0v5a2 2 0 002-2V5h-2z"/>
+                            </svg>
+                          </span>
+                        )}
+                        {leaderIds.includes(player.id) && (
+                          <span aria-label={pt.currentLeader} role="img">
+                            {/* Star icon */}
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                          </span>
+                        )}
+                      </div>
+                      <span className="truncate max-w-[56px] sm:max-w-none">{player.name}</span>
                     </div>
-                    <span className="truncate max-w-[56px] sm:max-w-none">{player.name}</span>
-                  </div>
-                </th>
-              ))}
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>

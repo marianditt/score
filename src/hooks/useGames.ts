@@ -4,7 +4,7 @@ import type { Game, Player } from '../types';
 const STORAGE_KEY = 'score-tracker-games';
 
 /** Current storage schema version. Increment this when a migration is needed. */
-const CURRENT_VERSION = 1;
+const CURRENT_VERSION = 2;
 
 interface StoredState {
   version: number;
@@ -20,8 +20,20 @@ function applyMigrations(state: StoredState): StoredState {
   if (state.version < 1) {
     state = { ...state, version: 1 };
   }
-  // Future migrations go here, e.g.:
-  // if (state.version < 2) { state = migrateV1toV2(state); }
+  // v1 → v2: add gender field to players (default 'male')
+  if (state.version < 2) {
+    state = {
+      ...state,
+      version: 2,
+      games: state.games.map(g => ({
+        ...g,
+        players: g.players.map(p => ({
+          ...p,
+          gender: p.gender ?? 'male',
+        })),
+      })),
+    };
+  }
   return state;
 }
 
@@ -101,6 +113,7 @@ export function useGames() {
     const player: Player = {
       id: generateId(),
       name,
+      gender: 'male',
       scores: [],
     };
     setGames(prev => prev.map(g =>

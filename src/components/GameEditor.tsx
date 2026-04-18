@@ -31,7 +31,7 @@ export function GameEditor({ game, onSave, onCancel }: GameEditorProps) {
     e?.preventDefault();
     const name = newPlayerName.trim();
     if (!name) return;
-    setPlayers(prev => [...prev, { id: generateId(), name, scores: [] }]);
+    setPlayers(prev => [...prev, { id: generateId(), name, gender: 'male', scores: [] }]);
     setNewPlayerName('');
     playerInputRef.current?.focus();
   }
@@ -45,6 +45,12 @@ export function GameEditor({ game, onSave, onCancel }: GameEditorProps) {
 
   function handleRemovePlayer(id: string) {
     setPlayers(prev => prev.filter(p => p.id !== id));
+  }
+
+  function handleToggleGender(id: string) {
+    setPlayers(prev => prev.map(p =>
+      p.id === id ? { ...p, gender: p.gender === 'female' ? 'male' : 'female' } : p
+    ));
   }
 
   function handleMoveUp(idx: number) {
@@ -79,7 +85,7 @@ export function GameEditor({ game, onSave, onCancel }: GameEditorProps) {
     const finalPlayers = players.map(p => {
       if (isEditing) {
         const existing = game.players.find(ep => ep.id === p.id);
-        return existing ?? { ...p, scores: [] };
+        return existing ? { ...existing, name: p.name, gender: p.gender } : { ...p, scores: [] };
       }
       return p;
     });
@@ -183,6 +189,30 @@ export function GameEditor({ game, onSave, onCancel }: GameEditorProps) {
                       {isNew && (
                         <span className="text-xs text-indigo-400 px-1.5 py-0.5 rounded bg-indigo-900/40">new</span>
                       )}
+
+                      {/* Gender toggle */}
+                      <button
+                        type="button"
+                        onClick={() => handleToggleGender(player.id)}
+                        className={`p-1.5 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                          player.gender === 'female'
+                            ? 'text-pink-400 hover:text-pink-300'
+                            : 'text-blue-400 hover:text-blue-300'
+                        }`}
+                        aria-label={`Toggle gender for ${player.name}: currently ${player.gender}`}
+                        title={player.gender === 'female' ? 'Female' : 'Male'}
+                      >
+                        {player.gender === 'female' ? (
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M12 2a6 6 0 100 12A6 6 0 0012 2zm0 10a4 4 0 110-8 4 4 0 010 8zm1 3h-2v2H9v2h2v2h2v-2h2v-2h-2v-2z"/>
+                          </svg>
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M15 2h5v5h-2V4.414l-3.293 3.293A6 6 0 1111 18.917V21H9v-2H7v-2h2v-2.083A6 6 0 1115 7.414V4h-2V2h2zm-3 5a4 4 0 100 8 4 4 0 000-8z"/>
+                          </svg>
+                        )}
+                      </button>
+
                       <button
                         type="button"
                         onClick={() => handleRemovePlayer(player.id)}
