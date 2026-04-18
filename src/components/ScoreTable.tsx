@@ -225,25 +225,23 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
 
       {/* Action row */}
       <div className="flex gap-3 mt-3">
-        {!gameOver && (
-          <button
-            type="submit"
-            className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
-            aria-label={`Save round ${nextRound} scores`}
-          >
-            {t.saveRound(nextRound)}
-          </button>
-        )}
-        {roundCount > 0 && (
-          <button
-            type="button"
-            onClick={() => onDeleteLastRound(game.id)}
-            className="px-4 py-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-400 hover:text-red-400 font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
-            aria-label={`Undo round ${roundCount}`}
-          >
-            {t.undoRound(roundCount)}
-          </button>
-        )}
+        <button
+          type="submit"
+          disabled={gameOver}
+          className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+          aria-label={gameOver ? t.saveRound(nextRound) : `Save round ${nextRound} scores`}
+        >
+          {t.saveRound(nextRound)}
+        </button>
+        <button
+          type="button"
+          onClick={() => onDeleteLastRound(game.id)}
+          disabled={roundCount === 0}
+          className="px-4 py-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-400 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
+          aria-label={`Undo round ${roundCount}`}
+        >
+          {t.undoRound(roundCount)}
+        </button>
       </div>
     </form>
   );

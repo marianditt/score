@@ -42,6 +42,24 @@ export function GameSettings({ game, onSave, onClose }: GameSettingsProps) {
     setPlayers(prev => prev.filter(p => p.id !== id));
   }
 
+  function handleMoveUp(idx: number) {
+    if (idx <= 0) return;
+    setPlayers(prev => {
+      const next = [...prev];
+      [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
+      return next;
+    });
+  }
+
+  function handleMoveDown(idx: number) {
+    setPlayers(prev => {
+      if (idx >= prev.length - 1) return prev;
+      const next = [...prev];
+      [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
+      return next;
+    });
+  }
+
   function handleThresholdChange(e: React.ChangeEvent<HTMLInputElement>) {
     const raw = e.target.value;
     if (raw === '') { setThreshold(''); return; }
@@ -110,13 +128,39 @@ export function GameSettings({ game, onSave, onClose }: GameSettingsProps) {
 
             {players.length > 0 && (
               <ul className="space-y-2 mb-3" role="list" aria-label="Player list">
-                {players.map(player => {
+                {players.map((player, idx) => {
                   const isExisting = game.players.some(ep => ep.id === player.id);
                   return (
                     <li
                       key={player.id}
                       className="flex items-center gap-2 bg-gray-700/50 rounded-lg px-3 py-2"
                     >
+                      {/* Reorder buttons */}
+                      <div className="flex flex-col gap-0.5" aria-label={`Reorder ${player.name}`}>
+                        <button
+                          type="button"
+                          onClick={() => handleMoveUp(idx)}
+                          disabled={idx === 0}
+                          className="p-0.5 text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed rounded transition-colors focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                          aria-label={`Move ${player.name} up`}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleMoveDown(idx)}
+                          disabled={idx === players.length - 1}
+                          className="p-0.5 text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed rounded transition-colors focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                          aria-label={`Move ${player.name} down`}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                      </div>
+
                       <span className="flex-1 text-white font-medium">{player.name}</span>
                       {!isExisting && (
                         <span className="text-xs text-indigo-400 px-1.5 py-0.5 rounded bg-indigo-900/40">new</span>

@@ -74,8 +74,6 @@ export interface Translations {
   round: string;
   total: string;
   now: string;
-  saveRound: (n: number) => string;
-  undoRound: (n: number) => string;
   roundLabel: (n: number) => string;
   winner: string;
   currentLeader: string;
@@ -136,8 +134,6 @@ export const translations: Record<Language, Translations> = {
     round: 'Round',
     total: 'Total',
     now: 'now',
-    saveRound: (n) => `+ Save Round ${n}`,
-    undoRound: (n) => `Undo R${n}`,
     roundLabel: (n) => `Round ${n}`,
     winner: 'Winner',
     currentLeader: 'Current leader',
@@ -193,8 +189,6 @@ export const translations: Record<Language, Translations> = {
     round: 'Runde',
     total: 'Gesamt',
     now: 'jetzt',
-    saveRound: (n) => `+ Runde ${n} speichern`,
-    undoRound: (n) => `R${n} rückgängig`,
     roundLabel: (n) => `Runde ${n}`,
     winner: 'Gewinner',
     currentLeader: 'Aktueller Führender',
@@ -250,8 +244,6 @@ export const translations: Record<Language, Translations> = {
     round: '轮次',
     total: '总分',
     now: '当前',
-    saveRound: (n) => `+ 保存第${n}轮`,
-    undoRound: (n) => `撤销第${n}轮`,
     roundLabel: (n) => `第${n}轮`,
     winner: '获胜者',
     currentLeader: '当前领先',
@@ -307,8 +299,6 @@ export const translations: Record<Language, Translations> = {
     round: 'दौर',
     total: 'कुल',
     now: 'अभी',
-    saveRound: (n) => `+ दौर ${n} सेव करें`,
-    undoRound: (n) => `दौर ${n} वापस लें`,
     roundLabel: (n) => `दौर ${n}`,
     winner: 'विजेता',
     currentLeader: 'वर्तमान अग्रणी',
@@ -364,8 +354,6 @@ export const translations: Record<Language, Translations> = {
     round: 'Ronda',
     total: 'Total',
     now: 'ahora',
-    saveRound: (n) => `+ Guardar ronda ${n}`,
-    undoRound: (n) => `Deshacer R${n}`,
     roundLabel: (n) => `Ronda ${n}`,
     winner: 'Ganador',
     currentLeader: 'Líder actual',
@@ -421,8 +409,6 @@ export const translations: Record<Language, Translations> = {
     round: 'Manche',
     total: 'Total',
     now: 'en cours',
-    saveRound: (n) => `+ Enregistrer manche ${n}`,
-    undoRound: (n) => `Annuler M${n}`,
     roundLabel: (n) => `Manche ${n}`,
     winner: 'Gagnant',
     currentLeader: 'Leader actuel',
