@@ -10,10 +10,9 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import Button from '@mui/material/Button';
+import Fab from '@mui/material/Fab';
 import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
-import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
@@ -141,6 +140,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
       component="form"
       onSubmit={handleAddRound}
       aria-label={`Score tracking for ${game.name}`}
+      sx={{ pb: 12 }}
     >
       <TableContainer
         component={Paper}
@@ -171,7 +171,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                   px: { xs: 1, sm: 2 },
                 }}
               >
-                {t.round}
+                {/* header label removed for compact display */}
               </TableCell>
               {game.players.map(player => {
                 const pt = getGenderedT(player.gender);
@@ -236,7 +236,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                   px: { xs: 1, sm: 2 },
                 }}
               >
-                {t.total}
+                #
               </TableCell>
               {game.players.map(player => (
                 <TableCell
@@ -356,19 +356,19 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
         </Table>
       </TableContainer>
 
-      {/* Action row */}
-      <Stack direction="row" spacing={1.5}>
-        <Button
-          type="submit"
-          disabled={gameOver}
-          variant="contained"
-          size="large"
-          startIcon={<AddIcon />}
-          fullWidth
-          aria-label={`${t.round} ${nextRound}`}
-        >
-          {t.round}
-        </Button>
+      {/* Fixed action buttons – FAB at bottom-end (consistent with home page) */}
+      <Box
+        sx={{
+          position: 'fixed',
+          bottom: 24,
+          insetInlineEnd: 24,
+          zIndex: 1000,
+          display: 'flex',
+          flexDirection: 'row',
+          gap: 1.5,
+          alignItems: 'center',
+        }}
+      >
         <Tooltip title={`${t.round} ${roundCount}`}>
           <span>
             <IconButton
@@ -381,6 +381,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                 border: '1px solid',
                 borderColor: 'divider',
                 borderRadius: 3,
+                bgcolor: 'background.paper',
                 color: 'text.disabled',
                 '&:not(:disabled):hover': { color: 'error.main', borderColor: 'error.main' },
               }}
@@ -389,7 +390,18 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
             </IconButton>
           </span>
         </Tooltip>
-      </Stack>
+        <Fab
+          type="submit"
+          disabled={gameOver}
+          variant="extended"
+          color="primary"
+          size="large"
+          aria-label={`${t.round} ${nextRound}`}
+        >
+          <AddIcon sx={{ mr: 1 }} />
+          {t.round}
+        </Fab>
+      </Box>
     </Box>
   );
 }

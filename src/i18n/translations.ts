@@ -91,7 +91,7 @@ export const translations: Record<Language, Translations> = {
   en: {
     appTitle: 'Score Tracker',
     appSubtitle: 'Track scores for all your board games',
-    newGame: '+ New Game',
+    newGame: 'New Game',
     noGamesTitle: 'No games yet',
     noGamesHint: 'Create your first game to get started!',
     playerSingular: 'player',
@@ -145,7 +145,7 @@ export const translations: Record<Language, Translations> = {
   de: {
     appTitle: 'Punktestand',
     appSubtitle: 'Verfolge die Punkte all deiner Brettspiele',
-    newGame: '+ Neues Spiel',
+    newGame: 'Neues Spiel',
     noGamesTitle: 'Noch keine Spiele',
     noGamesHint: 'Erstelle dein erstes Spiel, um loszulegen!',
     playerSingular: 'Spieler',
@@ -199,7 +199,7 @@ export const translations: Record<Language, Translations> = {
   zh: {
     appTitle: '得分追踪器',
     appSubtitle: '追踪所有桌游的得分',
-    newGame: '+ 新游戏',
+    newGame: '新游戏',
     noGamesTitle: '暂无游戏',
     noGamesHint: '创建您的第一个游戏开始吧！',
     playerSingular: '名玩家',
@@ -253,7 +253,7 @@ export const translations: Record<Language, Translations> = {
   hi: {
     appTitle: 'स्कोर ट्रैकर',
     appSubtitle: 'अपने सभी बोर्ड गेम के स्कोर ट्रैक करें',
-    newGame: '+ नया खेल',
+    newGame: 'नया खेल',
     noGamesTitle: 'अभी कोई खेल नहीं',
     noGamesHint: 'शुरू करने के लिए अपना पहला खेल बनाएं!',
     playerSingular: 'खिलाड़ी',
@@ -307,7 +307,7 @@ export const translations: Record<Language, Translations> = {
   es: {
     appTitle: 'Marcador',
     appSubtitle: 'Registra las puntuaciones de todos tus juegos de mesa',
-    newGame: '+ Nuevo juego',
+    newGame: 'Nuevo juego',
     noGamesTitle: 'Sin partidas todavía',
     noGamesHint: '¡Crea tu primera partida para empezar!',
     playerSingular: 'jugador',
@@ -361,7 +361,7 @@ export const translations: Record<Language, Translations> = {
   fr: {
     appTitle: 'Suivi des scores',
     appSubtitle: 'Suivez les scores de tous vos jeux de société',
-    newGame: '+ Nouvelle partie',
+    newGame: 'Nouvelle partie',
     noGamesTitle: 'Aucune partie pour l\'instant',
     noGamesHint: 'Créez votre première partie pour commencer !',
     playerSingular: 'joueur',
@@ -415,7 +415,7 @@ export const translations: Record<Language, Translations> = {
   ar: {
     appTitle: 'متتبع النقاط',
     appSubtitle: 'تتبع نقاط جميع ألعاب الطاولة الخاصة بك',
-    newGame: '+ لعبة جديدة',
+    newGame: 'لعبة جديدة',
     noGamesTitle: 'لا توجد ألعاب بعد',
     noGamesHint: 'أنشئ لعبتك الأولى للبدء!',
     playerSingular: 'لاعب',
@@ -469,7 +469,7 @@ export const translations: Record<Language, Translations> = {
   bn: {
     appTitle: 'স্কোর ট্র্যাকার',
     appSubtitle: 'আপনার সব বোর্ড গেমের স্কোর ট্র্যাক করুন',
-    newGame: '+ নতুন খেলা',
+    newGame: 'নতুন খেলা',
     noGamesTitle: 'এখনো কোনো খেলা নেই',
     noGamesHint: 'শুরু করতে আপনার প্রথম খেলা তৈরি করুন!',
     playerSingular: 'খেলোয়াড়',
@@ -523,7 +523,7 @@ export const translations: Record<Language, Translations> = {
   pt: {
     appTitle: 'Placar',
     appSubtitle: 'Registre as pontuações de todos os seus jogos de tabuleiro',
-    newGame: '+ Novo jogo',
+    newGame: 'Novo jogo',
     noGamesTitle: 'Nenhum jogo ainda',
     noGamesHint: 'Crie seu primeiro jogo para começar!',
     playerSingular: 'jogador',
