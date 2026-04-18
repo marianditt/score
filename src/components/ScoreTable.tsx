@@ -318,7 +318,18 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                             inputMode: 'numeric' as const,
                             style: { textAlign: 'center', padding: '4px 2px' },
                             onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => handleInputKeyDown(e, idx),
-                            onFocus: (e: React.FocusEvent<HTMLInputElement>) => e.target.scrollIntoView({ block: 'nearest', inline: 'nearest' }),
+                            onFocus: (e: React.FocusEvent<HTMLInputElement>) => {
+                              e.target.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                              const container = tableContainerRef.current;
+                              if (!container) return;
+                              const stickyWidth = 36;
+                              const containerRect = container.getBoundingClientRect();
+                              const elRect = e.target.getBoundingClientRect();
+                              const elLeftInContainer = elRect.left - containerRect.left;
+                              if (elLeftInContainer < stickyWidth) {
+                                container.scrollLeft -= (stickyWidth - elLeftInContainer);
+                              }
+                            },
                           },
                         }}
                         variant="outlined"
