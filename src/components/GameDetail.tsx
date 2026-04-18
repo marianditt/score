@@ -79,9 +79,8 @@ export function GameDetail({
     <Box sx={{ minHeight: '100dvh', bgcolor: 'background.default', display: 'flex', flexDirection: 'column' }}>
       {gameOver && <Confetti />}
 
-      {/* Sticky AppBar */}
       <AppBar position="sticky">
-        <Toolbar>
+        <Toolbar sx={{ position: 'relative' }}>
           <IconButton
             edge="start"
             onClick={onBack}
@@ -92,7 +91,7 @@ export function GameDetail({
             <ArrowBackIcon sx={{ transform: 'var(--rtl-flip, none)' }} />
           </IconButton>
 
-          <Box sx={{ flex: 1, minWidth: 0, ml: 1 }}>
+          <Box sx={{ flex: 1, minWidth: 0, ml: 1, overflow: 'hidden' }}>
             <Typography variant="h6" component="h1" noWrap sx={{ fontWeight: 700 }}>
               {game.name}
             </Typography>
@@ -101,58 +100,73 @@ export function GameDetail({
             </Typography>
           </Box>
 
-          {/* Edit settings */}
-          <Tooltip title={t.editSettings}>
-            <IconButton
-              onClick={() => { setConfirmReset(false); setIsEditingSettings(true); }}
-              aria-label={t.editSettings}
-              color="inherit"
-              size="large"
-            >
-              <EditIcon />
-            </IconButton>
-          </Tooltip>
-
-          {/* Reset */}
-          {confirmReset ? (
-            <Stack direction="row" spacing={0.5} sx={{ ml: 1 }} role="alertdialog" aria-label={t.resetAllScoresQuestion}>
-              <Button
-                size="small"
-                variant="contained"
-                color="error"
-                onClick={handleReset}
-                aria-label={t.yesReset}
-                autoFocus
-                sx={{ px: 1.5 }}
+          {/* Controls overlay — absolutely positioned so the title text never wraps */}
+          <Box
+            sx={{
+              position: 'absolute',
+              right: 0,
+              top: 0,
+              bottom: 0,
+              display: 'flex',
+              alignItems: 'center',
+              pl: 6,
+              pr: 1,
+              background: theme => `linear-gradient(to right, transparent, ${theme.palette.background.paper} 48px)`,
+              // 48 px: 6 px padding (pl:6) overlap region for the gradient fade
+            }}
+          >
+            {/* Edit settings */}
+            <Tooltip title={t.editSettings}>
+              <IconButton
+                onClick={() => { setConfirmReset(false); setIsEditingSettings(true); }}
+                aria-label={t.editSettings}
+                color="inherit"
+                size="large"
               >
-                {t.yesReset}
-              </Button>
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={() => setConfirmReset(false)}
-                aria-label={t.cancelReset}
-                sx={{ px: 1.5 }}
-              >
-                {t.cancelReset}
-              </Button>
-            </Stack>
-          ) : (
-            <Tooltip title={t.reset}>
-              <span>
-                <IconButton
-                  onClick={() => setConfirmReset(true)}
-                  disabled={roundCount === 0}
-                  aria-label={t.reset}
-                  color="inherit"
-                  size="large"
-                  sx={{ '&:not(:disabled):hover': { color: 'error.main' } }}
-                >
-                  <RestartAltIcon />
-                </IconButton>
-              </span>
+                <EditIcon />
+              </IconButton>
             </Tooltip>
-          )}
+
+            {/* Reset */}
+            {confirmReset ? (
+              <Stack direction="row" spacing={0.5} sx={{ ml: 0.5 }} role="alertdialog" aria-label={t.resetAllScoresQuestion}>
+                <Button
+                  size="small"
+                  variant="contained"
+                  color="error"
+                  onClick={handleReset}
+                  aria-label={t.yesReset}
+                  autoFocus
+                  sx={{ px: 1.5 }}
+                >
+                  {t.yesReset}
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => setConfirmReset(false)}
+                  aria-label={t.cancelReset}
+                  sx={{ px: 1.5 }}
+                >
+                  {t.cancelReset}
+                </Button>
+              </Stack>
+            ) : (
+              <Tooltip title={t.reset}>
+                <span>
+                  <IconButton
+                    onClick={() => setConfirmReset(true)}
+                    disabled={roundCount === 0}
+                    aria-label={t.reset}
+                    color="inherit"
+                    size="large"
+                  >
+                    <RestartAltIcon />
+                  </IconButton>
+                </span>
+              </Tooltip>
+            )}
+          </Box>
         </Toolbar>
       </AppBar>
 
