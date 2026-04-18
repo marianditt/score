@@ -156,12 +156,17 @@ export function useGames() {
   const addRound = useCallback((gameId: string, roundScores: Record<string, number>) => {
     setGames(prev => prev.map(g => {
       if (g.id !== gameId) return g;
+      const currentRoundCount = Math.max(0, ...g.players.map(p => p.scores.length));
       return {
         ...g,
-        players: g.players.map(p => ({
-          ...p,
-          scores: [...p.scores, roundScores[p.id] ?? 0],
-        })),
+        players: g.players.map(p => {
+          const missedRounds = currentRoundCount - p.scores.length;
+          const padding: null[] = missedRounds > 0 ? Array(missedRounds).fill(null) : [];
+          return {
+            ...p,
+            scores: [...p.scores, ...padding, roundScores[p.id] ?? 0],
+          };
+        }),
       };
     }));
   }, []);

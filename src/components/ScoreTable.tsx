@@ -27,8 +27,8 @@ interface ScoreTableProps {
   onDeleteLastRound: (gameId: string) => void;
 }
 
-function getTotal(scores: number[]): number {
-  return scores.reduce((a, b) => a + b, 0);
+function getTotal(scores: (number | null)[]): number {
+  return scores.reduce((a: number, b) => a + (b ?? 0), 0);
 }
 
 function getLeadersAndWinners(game: Game): { leaderIds: string[]; winnerIds: string[] } {
@@ -149,7 +149,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
         aria-label="Score table"
         sx={{ borderRadius: 3, mb: 1.5 }}
       >
-        <Table size="small" sx={{ tableLayout: 'fixed' }}>
+        <Table size="small" sx={{ tableLayout: playerCount > 6 ? 'auto' : 'fixed', minWidth: playerCount > 6 ? 36 + playerCount * headerMinWidth : undefined }}>
           <TableHead>
             <TableRow>
               {/* Round column – sticky */}
@@ -344,7 +344,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                       align="center"
                       sx={{ color: 'text.secondary', px: { xs: 0.5, sm: 1.5 }, py: 1, fontSize: '0.85rem' }}
                     >
-                      {player.scores[roundIdx] !== undefined ? player.scores[roundIdx] : (
+                      {player.scores[roundIdx] != null ? player.scores[roundIdx] : (
                         <Box component="span" sx={{ color: 'text.disabled' }} aria-hidden="true">—</Box>
                       )}
                     </TableCell>
@@ -382,8 +382,9 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                 borderColor: 'divider',
                 borderRadius: 3,
                 bgcolor: 'background.paper',
-                color: 'text.disabled',
-                '&:not(:disabled):hover': { color: 'error.main', borderColor: 'error.main' },
+                color: 'text.primary',
+                '&.Mui-disabled': { color: 'action.disabled' },
+                '&:not(.Mui-disabled):hover': { color: 'error.main', borderColor: 'error.main' },
               }}
             >
               <UndoIcon />

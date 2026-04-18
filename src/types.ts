@@ -2,7 +2,7 @@ export interface Player {
   id: string;
   name: string;
   gender: 'male' | 'female';
-  scores: number[];
+  scores: (number | null)[];
 }
 
 export interface Game {
