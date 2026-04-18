@@ -89,19 +89,19 @@ export const test = base.extend<ScoreTrackerFixtures>({
   given: async ({ page }, use) => {
     const given = {
       theAppIsOpenWithNoSavedGames: async (): Promise<GameListPage> => {
-        await page.goto('/');
+        await page.goto('/score/');
         await page.evaluate(() => localStorage.clear());
         await page.reload();
         return new GameListPage(page);
       },
 
       theAppIsOpen: async (): Promise<GameListPage> => {
-        await page.goto('/');
+        await page.goto('/score/');
         return new GameListPage(page);
       },
 
       aGameIsInProgress: async (config: GameConfig): Promise<GameDetailPage> => {
-        await page.goto('/');
+        await page.goto('/score/');
         await page.evaluate(() => localStorage.clear());
         await page.reload();
         const list = new GameListPage(page);
@@ -117,7 +117,7 @@ export const test = base.extend<ScoreTrackerFixtures>({
         config: GameConfig,
         rounds: Record<string, number>[],
       ): Promise<GameDetailPage> => {
-        await page.goto('/');
+        await page.goto('/score/');
         await page.evaluate(() => localStorage.clear());
         await page.reload();
         const list = new GameListPage(page);

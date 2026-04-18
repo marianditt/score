@@ -12,7 +12,7 @@ export default defineConfig({
     ['list'],
   ],
   use: {
-    baseURL: 'http://localhost:4173',
+    baseURL: 'http://localhost:4173/score',
     trace: 'on-first-retry',
   },
   projects: [
