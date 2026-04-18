@@ -2,6 +2,7 @@ import { test as base, expect } from '@playwright/test';
 import { GameListPage } from './GameListPage';
 import { GameSetupPage, type GameConfig } from './GameSetupPage';
 import { GameDetailPage } from './GameDetailPage';
+import { GameSettingsPage } from './GameSettingsPage';
 
 /**
  * ScoreTracker fixtures expose a fluent given/when/then API that maps
@@ -13,6 +14,7 @@ export interface ScoreTrackerFixtures {
   gameListPage: GameListPage;
   gameSetupPage: GameSetupPage;
   gameDetailPage: GameDetailPage;
+  gameSettingsPage: GameSettingsPage;
   given: {
     /** Navigate to the app and clear any persisted state. */
     theAppIsOpenWithNoSavedGames: () => Promise<GameListPage>;
@@ -48,6 +50,7 @@ export interface ScoreTrackerFixtures {
     theUserOpensTheGame: (page: GameListPage, gameName: string) => Promise<GameDetailPage>;
     theUserReloadsThePage: () => Promise<GameListPage>;
     theUserSelectsGender: (page: GameListPage, gender: 'male' | 'female') => Promise<void>;
+    theUserOpensGameSettings: (page: GameDetailPage) => Promise<GameSettingsPage>;
   };
   then: {
     theGameListIsVisible: (page: GameListPage) => Promise<void>;
@@ -73,6 +76,12 @@ export interface ScoreTrackerFixtures {
     theGameShowsRoundCountInList: (page: GameListPage, gameName: string, count: number) => Promise<void>;
     theGenderToggleIsVisible: (page: GameListPage) => Promise<void>;
     theGenderToggleIsHidden: (page: GameListPage) => Promise<void>;
+    theConfettiIsVisible: (page: GameDetailPage) => Promise<void>;
+    theConfettiIsHidden: (page: GameDetailPage) => Promise<void>;
+    theSaveRoundButtonIsHidden: (page: GameDetailPage, roundNumber: number) => Promise<void>;
+    theUndoRoundButtonIsVisible: (page: GameDetailPage, roundNumber: number) => Promise<void>;
+    theMultiplePlayersAreLeaders: (page: GameDetailPage, playerNames: string[]) => Promise<void>;
+    theMultiplePlayersAreWinners: (page: GameDetailPage, playerNames: string[]) => Promise<void>;
   };
 }
 
@@ -87,6 +96,10 @@ export const test = base.extend<ScoreTrackerFixtures>({
 
   gameDetailPage: async ({ page }, use) => {
     await use(new GameDetailPage(page));
+  },
+
+  gameSettingsPage: async ({ page }, use) => {
+    await use(new GameSettingsPage(page));
   },
 
   given: async ({ page }, use) => {
@@ -201,6 +214,11 @@ export const test = base.extend<ScoreTrackerFixtures>({
 
       theUserSelectsGender: async (list: GameListPage, gender: 'male' | 'female'): Promise<void> => {
         await list.selectGender(gender);
+      },
+
+      theUserOpensGameSettings: async (detail: GameDetailPage): Promise<GameSettingsPage> => {
+        await detail.openSettings();
+        return new GameSettingsPage(page);
       },
     };
     await use(when);

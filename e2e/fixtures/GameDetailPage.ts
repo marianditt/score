@@ -8,12 +8,16 @@ export class GameDetailPage {
   readonly totalRow: Locator;
   readonly backButton: Locator;
   readonly resetButton: Locator;
+  readonly editSettingsButton: Locator;
+  readonly confetti: Locator;
 
   constructor(readonly page: Page) {
     this.scoreTable = page.getByRole('region', { name: 'Score table' });
     this.totalRow = page.getByRole('row', { name: 'Total scores' });
     this.backButton = page.getByRole('button', { name: 'Back to game list' });
     this.resetButton = page.getByRole('button', { name: 'Reset all scores to zero' });
+    this.editSettingsButton = page.getByRole('button', { name: 'Edit game settings' });
+    this.confetti = page.getByTestId('confetti');
   }
 
   gameTitle(name: string): Locator {
@@ -93,5 +97,9 @@ export class GameDetailPage {
 
   async goBack(): Promise<void> {
     await this.backButton.click();
+  }
+
+  async openSettings(): Promise<void> {
+    await this.editSettingsButton.click();
   }
 }

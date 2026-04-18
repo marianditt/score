@@ -12,30 +12,37 @@ function getTotal(scores: number[]): number {
   return scores.reduce((a, b) => a + b, 0);
 }
 
-function getLeaderAndWinner(game: Game): { leaderId: string | null; winnerId: string | null } {
-  if (game.players.length === 0) return { leaderId: null, winnerId: null };
+function getLeadersAndWinners(game: Game): { leaderIds: string[]; winnerIds: string[] } {
+  if (game.players.length === 0) return { leaderIds: [], winnerIds: [] };
+
+  // Nobody leads before any rounds are played
+  const roundCount = Math.max(0, ...game.players.map(p => p.scores.length));
+  if (roundCount === 0) return { leaderIds: [], winnerIds: [] };
 
   const totals = game.players.map(p => ({ id: p.id, total: getTotal(p.scores) }));
-  const allZero = totals.every(t => t.total === 0);
-  if (allZero) return { leaderId: null, winnerId: null };
 
   if (game.mode === 'highest') {
-    const sorted = [...totals].sort((a, b) => b.total - a.total);
-    const top = sorted[0];
-    const winnerId = top.total >= game.threshold ? top.id : null;
-    return { winnerId, leaderId: winnerId ? null : top.id };
+    const maxTotal = Math.max(...totals.map(t => t.total));
+    const topPlayers = totals.filter(t => t.total === maxTotal);
+    if (maxTotal >= game.threshold) {
+      return { leaderIds: [], winnerIds: topPlayers.map(p => p.id) };
+    }
+    return { leaderIds: topPlayers.map(p => p.id), winnerIds: [] };
   } else {
-    const anyAbove = totals.some(t => t.total >= game.threshold);
-    const sorted = [...totals].sort((a, b) => a.total - b.total);
-    const top = sorted[0];
-    const winnerId = anyAbove ? top.id : null;
-    return { winnerId, leaderId: winnerId ? null : top.id };
+    const minTotal = Math.min(...totals.map(t => t.total));
+    const bottomPlayers = totals.filter(t => t.total === minTotal);
+    const anyAboveThreshold = totals.some(t => t.total >= game.threshold);
+    if (anyAboveThreshold) {
+      return { leaderIds: [], winnerIds: bottomPlayers.map(p => p.id) };
+    }
+    return { leaderIds: bottomPlayers.map(p => p.id), winnerIds: [] };
   }
 }
 
 export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTableProps) {
   const { t } = useLanguage();
-  const roundCount = game.players[0]?.scores.length ?? 0;
+  // Use max across all players so newly added players (scores:[]) don't shrink the count
+  const roundCount = Math.max(0, ...game.players.map(p => p.scores.length));
   const nextRound = roundCount + 1;
 
   const initScores = (): Record<string, string> => {
@@ -56,7 +63,8 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
     setCurrentScores(initScores());
   }
 
-  const { leaderId, winnerId } = getLeaderAndWinner(game);
+  const { leaderIds, winnerIds } = getLeadersAndWinners(game);
+  const gameOver = winnerIds.length > 0;
 
   const playerTotals: Record<string, number> = {};
   game.players.forEach(p => { playerTotals[p.id] = getTotal(p.scores); });
@@ -88,14 +96,14 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
   }
 
   function colClass(playerId: string): string {
-    if (winnerId === playerId) return 'text-yellow-300 font-bold';
-    if (leaderId === playerId) return 'text-indigo-300 font-semibold';
+    if (winnerIds.includes(playerId)) return 'text-yellow-300 font-bold';
+    if (leaderIds.includes(playerId)) return 'text-indigo-300 font-semibold';
     return 'text-white';
   }
 
   function totalCellClass(playerId: string): string {
-    if (winnerId === playerId) return 'bg-yellow-900/40 border-b-2 border-yellow-500';
-    if (leaderId === playerId) return 'bg-indigo-900/30 border-b-2 border-indigo-500';
+    if (winnerIds.includes(playerId)) return 'bg-yellow-900/40 border-b-2 border-yellow-500';
+    if (leaderIds.includes(playerId)) return 'bg-indigo-900/30 border-b-2 border-indigo-500';
     return 'border-b-2 border-gray-700';
   }
 
@@ -133,9 +141,11 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                   scope="col"
                   className={`${cellPadding} py-3 text-center font-semibold ${playerColClass} ${colClass(player.id)}`}
                 >
-                  <div className="flex items-center justify-center gap-0.5 sm:gap-1">
-                    {winnerId === player.id && <span aria-label={t.winner} role="img">🏆</span>}
-                    {leaderId === player.id && <span aria-label={t.currentLeader} role="img">⭐</span>}
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="h-5 flex items-center justify-center">
+                      {winnerIds.includes(player.id) && <span aria-label={t.winner} role="img">🏆</span>}
+                      {leaderIds.includes(player.id) && <span aria-label={t.currentLeader} role="img">⭐</span>}
+                    </div>
                     <span className="truncate max-w-[56px] sm:max-w-none">{player.name}</span>
                   </div>
                 </th>
@@ -162,28 +172,30 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
               ))}
             </tr>
 
-            {/* Current (editable) round row */}
-            <tr className="bg-indigo-950/30 border-b border-gray-700" aria-label={`Round ${nextRound} — enter scores`}>
-              <th scope="row" className={`${cellPadding} py-2.5 text-start text-indigo-300 font-semibold text-xs sticky start-0 bg-indigo-950/50 z-10 whitespace-nowrap`}>
-                R{nextRound}
-                <span className="ms-1 text-indigo-400/60 font-normal text-[10px] hidden sm:inline">{t.now}</span>
-              </th>
-              {game.players.map((player, idx) => (
-                <td key={player.id} className={`${cellPadding} py-1.5 sm:py-2`}>
-                  <input
-                    ref={idx === 0 ? firstInputRef : undefined}
-                    type="number"
-                    value={currentScores[player.id] ?? ''}
-                    onChange={e => setCurrentScores(prev => ({ ...prev, [player.id]: e.target.value }))}
-                    onKeyDown={e => handleInputKeyDown(e, idx)}
-                    placeholder="0"
-                    aria-label={`${player.name} score for round ${nextRound}`}
-                    inputMode="numeric"
-                    className={inputClass}
-                  />
-                </td>
-              ))}
-            </tr>
+            {/* Current (editable) round row — hidden when game is over */}
+            {!gameOver && (
+              <tr className="bg-indigo-950/30 border-b border-gray-700" aria-label={`Round ${nextRound} — enter scores`}>
+                <th scope="row" className={`${cellPadding} py-2.5 text-start text-indigo-300 font-semibold text-xs sticky start-0 bg-indigo-950/50 z-10 whitespace-nowrap`}>
+                  R{nextRound}
+                  <span className="ms-1 text-indigo-400/60 font-normal text-[10px] hidden sm:inline">{t.now}</span>
+                </th>
+                {game.players.map((player, idx) => (
+                  <td key={player.id} className={`${cellPadding} py-1.5 sm:py-2`}>
+                    <input
+                      ref={idx === 0 ? firstInputRef : undefined}
+                      type="number"
+                      value={currentScores[player.id] ?? ''}
+                      onChange={e => setCurrentScores(prev => ({ ...prev, [player.id]: e.target.value }))}
+                      onKeyDown={e => handleInputKeyDown(e, idx)}
+                      placeholder="0"
+                      aria-label={`${player.name} score for round ${nextRound}`}
+                      inputMode="numeric"
+                      className={inputClass}
+                    />
+                  </td>
+                ))}
+              </tr>
+            )}
 
             {/* Past rounds (newest first) */}
             {pastRoundIndices.map(roundIdx => {
@@ -213,13 +225,15 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
 
       {/* Action row */}
       <div className="flex gap-3 mt-3">
-        <button
-          type="submit"
-          className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
-          aria-label={`Save round ${nextRound} scores`}
-        >
-          {t.saveRound(nextRound)}
-        </button>
+        {!gameOver && (
+          <button
+            type="submit"
+            className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+            aria-label={`Save round ${nextRound} scores`}
+          >
+            {t.saveRound(nextRound)}
+          </button>
+        )}
         {roundCount > 0 && (
           <button
             type="button"

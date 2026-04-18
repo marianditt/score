@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import type { Game } from '../types';
 import { ScoreTable } from './ScoreTable';
+import { GameSettings } from './GameSettings';
+import { Confetti } from './Confetti';
 import { useLanguage } from '../i18n/index';
 
 interface GameDetailProps {
@@ -9,6 +11,14 @@ interface GameDetailProps {
   onAddRound: (gameId: string, scores: Record<string, number>) => void;
   onDeleteLastRound: (gameId: string) => void;
   onResetGame: (gameId: string) => void;
+  onUpdateGame: (game: Game) => void;
+}
+
+function isGameOver(game: Game): boolean {
+  if (game.players.length === 0) return false;
+  const totals = game.players.map(p => p.scores.reduce((a, b) => a + b, 0));
+  if (game.mode === 'highest') return Math.max(...totals) >= game.threshold;
+  return totals.some(t => t >= game.threshold);
 }
 
 export function GameDetail({
@@ -17,9 +27,13 @@ export function GameDetail({
   onAddRound,
   onDeleteLastRound,
   onResetGame,
+  onUpdateGame,
 }: GameDetailProps) {
   const { t } = useLanguage();
   const [confirmReset, setConfirmReset] = useState(false);
+  const [isEditingSettings, setIsEditingSettings] = useState(false);
+
+  const gameOver = isGameOver(game);
 
   function handleReset() {
     if (!confirmReset) {
@@ -30,10 +44,22 @@ export function GameDetail({
     setConfirmReset(false);
   }
 
+  if (isEditingSettings) {
+    return (
+      <GameSettings
+        game={game}
+        onSave={updated => { onUpdateGame(updated); setIsEditingSettings(false); }}
+        onClose={() => setIsEditingSettings(false)}
+      />
+    );
+  }
+
   const modeLabel = game.mode === 'highest' ? t.highestWins : t.lowestWins;
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
+      {gameOver && <Confetti />}
+
       {/* Sticky header */}
       <header className="sticky top-0 z-20 bg-gray-900/95 backdrop-blur border-b border-gray-800 px-4 py-3 flex items-center gap-3">
         <button
@@ -52,6 +78,15 @@ export function GameDetail({
             {t.playersSuffix(game.players.length)} · {modeLabel} · {t.threshold} {game.threshold}
           </p>
         </div>
+
+        {/* Edit settings button */}
+        <button
+          onClick={() => { setConfirmReset(false); setIsEditingSettings(true); }}
+          className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-400 hover:text-white text-sm font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 shrink-0"
+          aria-label="Edit game settings"
+        >
+          {t.editSettings}
+        </button>
 
         {/* Reset button */}
         {confirmReset ? (
