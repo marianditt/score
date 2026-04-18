@@ -10,6 +10,7 @@ export class GameListPage {
   readonly gameList: Locator;
   readonly languageSelector: Locator;
   readonly highContrastToggle: Locator;
+  readonly genderToggle: Locator;
 
   constructor(readonly page: Page) {
     this.heading = page.getByRole('heading', { name: /Score Tracker/i });
@@ -18,6 +19,7 @@ export class GameListPage {
     this.gameList = page.getByRole('list', { name: /Saved games/i });
     this.languageSelector = page.getByTestId('language-selector');
     this.highContrastToggle = page.getByTestId('high-contrast-toggle');
+    this.genderToggle = page.getByTestId('gender-toggle');
   }
 
   gameCard(name: string): Locator {
@@ -67,5 +69,13 @@ export class GameListPage {
 
   async toggleHighContrast(): Promise<void> {
     await this.highContrastToggle.click();
+  }
+
+  async selectGender(gender: 'male' | 'female'): Promise<void> {
+    const pressed = await this.genderToggle.getAttribute('aria-pressed');
+    const isFemale = pressed === 'true';
+    if ((gender === 'female' && !isFemale) || (gender === 'male' && isFemale)) {
+      await this.genderToggle.click();
+    }
   }
 }

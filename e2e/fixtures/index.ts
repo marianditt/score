@@ -47,6 +47,7 @@ export interface ScoreTrackerFixtures {
     theUserCancelsGameDeletion: (page: GameListPage, gameName: string) => Promise<void>;
     theUserOpensTheGame: (page: GameListPage, gameName: string) => Promise<GameDetailPage>;
     theUserReloadsThePage: () => Promise<GameListPage>;
+    theUserSelectsGender: (page: GameListPage, gender: 'male' | 'female') => Promise<void>;
   };
   then: {
     theGameListIsVisible: (page: GameListPage) => Promise<void>;
@@ -70,6 +71,8 @@ export interface ScoreTrackerFixtures {
     theGameShowsModeInList: (page: GameListPage, gameName: string, mode: 'highest' | 'lowest') => Promise<void>;
     theGameShowsLeaderInList: (page: GameListPage, leaderName: string) => Promise<void>;
     theGameShowsRoundCountInList: (page: GameListPage, gameName: string, count: number) => Promise<void>;
+    theGenderToggleIsVisible: (page: GameListPage) => Promise<void>;
+    theGenderToggleIsHidden: (page: GameListPage) => Promise<void>;
   };
 }
 
@@ -195,6 +198,10 @@ export const test = base.extend<ScoreTrackerFixtures>({
         await page.reload();
         return new GameListPage(page);
       },
+
+      theUserSelectsGender: async (list: GameListPage, gender: 'male' | 'female'): Promise<void> => {
+        await list.selectGender(gender);
+      },
     };
     await use(when);
   },
@@ -289,6 +296,14 @@ export const test = base.extend<ScoreTrackerFixtures>({
 
       theGameShowsRoundCountInList: async (list: GameListPage, _gameName: string, count: number): Promise<void> => {
         await expect(page.getByText(`${count} round${count !== 1 ? 's' : ''}`).first()).toBeVisible();
+      },
+
+      theGenderToggleIsVisible: async (list: GameListPage): Promise<void> => {
+        await expect(list.genderToggle).toBeVisible();
+      },
+
+      theGenderToggleIsHidden: async (list: GameListPage): Promise<void> => {
+        await expect(list.genderToggle).not.toBeVisible();
       },
     };
     await use(then);

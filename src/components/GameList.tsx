@@ -30,7 +30,7 @@ function getLeader(game: Game): string | null {
 export function GameList({ games, onSelectGame, onNewGame, onDeleteGame, highContrast, onToggleHighContrast }: GameListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showLangMenu, setShowLangMenu] = useState(false);
-  const { t, language, setLanguage, availableLanguages, languageNames } = useLanguage();
+  const { t, language, setLanguage, availableLanguages, languageNames, gender, setGender, isGendered } = useLanguage();
 
   function handleDeleteClick(e: React.MouseEvent, id: string) {
     e.stopPropagation();
@@ -111,6 +111,24 @@ export function GameList({ games, onSelectGame, onNewGame, onDeleteGame, highCon
                   </ul>
                 )}
               </div>
+
+              {/* Gender toggle — only shown for languages that differentiate */}
+              {isGendered && (
+                <button
+                  onClick={() => setGender(gender === 'female' ? 'male' : 'female')}
+                  className={`px-2 py-1.5 rounded-lg text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 border ${
+                    gender === 'female'
+                      ? 'bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-500'
+                      : 'bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700'
+                  }`}
+                  aria-pressed={gender === 'female'}
+                  aria-label={t.genderToggle}
+                  title={t.genderToggle}
+                  data-testid="gender-toggle"
+                >
+                  {gender === 'female' ? '♀' : '♂'}
+                </button>
+              )}
             </div>
           </div>
           <p className="text-gray-400">{t.appSubtitle}</p>

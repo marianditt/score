@@ -15,6 +15,11 @@ export const LANGUAGE_NAMES: Record<Language, string> = {
 
 export const RTL_LANGUAGES: ReadonlySet<Language> = new Set(['ar']);
 
+/** Languages where gendered word forms differ (e.g. Spieler vs. Spielerin in German). */
+export const GENDERED_LANGUAGES: ReadonlySet<Language> = new Set(['de']);
+
+export type Gender = 'male' | 'female';
+
 export interface Translations {
   // App / Landing page
   appTitle: string;
@@ -78,6 +83,7 @@ export interface Translations {
   // Preferences / Accessibility
   language: string;
   highContrast: string;
+  genderToggle: string;
 }
 
 export const translations: Record<Language, Translations> = {
@@ -133,6 +139,7 @@ export const translations: Record<Language, Translations> = {
     currentLeader: 'Current leader',
     language: 'Language',
     highContrast: 'High Contrast',
+    genderToggle: 'Gender',
   },
 
   de: {
@@ -187,6 +194,7 @@ export const translations: Record<Language, Translations> = {
     currentLeader: 'Aktueller Führender',
     language: 'Sprache',
     highContrast: 'Hoher Kontrast',
+    genderToggle: 'Geschlecht',
   },
 
   zh: {
@@ -241,6 +249,7 @@ export const translations: Record<Language, Translations> = {
     currentLeader: '当前领先',
     language: '语言',
     highContrast: '高对比度',
+    genderToggle: '性别',
   },
 
   hi: {
@@ -295,6 +304,7 @@ export const translations: Record<Language, Translations> = {
     currentLeader: 'वर्तमान अग्रणी',
     language: 'भाषा',
     highContrast: 'उच्च कंट्रास्ट',
+    genderToggle: 'लिंग',
   },
 
   es: {
@@ -349,6 +359,7 @@ export const translations: Record<Language, Translations> = {
     currentLeader: 'Líder actual',
     language: 'Idioma',
     highContrast: 'Alto contraste',
+    genderToggle: 'Género',
   },
 
   fr: {
@@ -403,6 +414,7 @@ export const translations: Record<Language, Translations> = {
     currentLeader: 'Leader actuel',
     language: 'Langue',
     highContrast: 'Contraste élevé',
+    genderToggle: 'Genre',
   },
 
   ar: {
@@ -457,6 +469,7 @@ export const translations: Record<Language, Translations> = {
     currentLeader: 'المتصدر الحالي',
     language: 'اللغة',
     highContrast: 'تباين عالٍ',
+    genderToggle: 'الجنس',
   },
 
   bn: {
@@ -511,6 +524,7 @@ export const translations: Record<Language, Translations> = {
     currentLeader: 'বর্তমানে এগিয়ে',
     language: 'ভাষা',
     highContrast: 'উচ্চ কনট্রাস্ট',
+    genderToggle: 'লিঙ্গ',
   },
 
   pt: {
@@ -565,5 +579,22 @@ export const translations: Record<Language, Translations> = {
     currentLeader: 'Líder atual',
     language: 'Idioma',
     highContrast: 'Alto contraste',
+    genderToggle: 'Gênero',
+  },
+};
+
+/**
+ * Female-form overrides for languages that grammatically differentiate gender.
+ * Only keys that differ from the default (male) translations need to be listed.
+ */
+export const femaleTranslations: Partial<Record<Language, Partial<Translations>>> = {
+  de: {
+    playerSingular: 'Spielerin',
+    playerPlural: 'Spielerinnen',
+    leader: 'Führende',
+    winner: 'Gewinnerin',
+    currentLeader: 'Aktuelle Führende',
+    addPlayerHint: 'Füge mindestens eine Spielerin hinzu, um zu starten',
+    playersSuffix: (count) => `${count} ${count === 1 ? 'Spielerin' : 'Spielerinnen'}`,
   },
 };
