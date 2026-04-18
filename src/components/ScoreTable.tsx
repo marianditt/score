@@ -57,7 +57,8 @@ function getLeadersAndWinners(game: Game): { leaderIds: string[]; winnerIds: str
   }
 }
 
-// Minimum column width: 6 players fit on a ~390 px mobile (390 - 36 round col) / 6 ≈ 59 px → use 56 px
+// Minimum column width: 6 players fit on a ~390 px mobile (390 - 36 round col) / 6 ≈ 59 px.
+// Using 56 px (a round multiple of 8) leaves a small visual margin and aligns to the 8 px Material Design grid.
 const MIN_COL_WIDTH = 56;
 
 export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTableProps) {

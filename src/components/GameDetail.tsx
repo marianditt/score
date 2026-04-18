@@ -112,6 +112,7 @@ export function GameDetail({
               pl: 6,
               pr: 1,
               background: theme => `linear-gradient(to right, transparent, ${theme.palette.background.paper} 48px)`,
+              // 48 px: 6 px padding (pl:6) overlap region for the gradient fade
             }}
           >
             {/* Edit settings */}
