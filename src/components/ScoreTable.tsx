@@ -229,18 +229,22 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
           type="submit"
           disabled={gameOver}
           className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
-          aria-label={gameOver ? t.saveRound(nextRound) : `Save round ${nextRound} scores`}
+          aria-label={`Add round ${nextRound}`}
         >
-          {t.saveRound(nextRound)}
+          + {t.round}
         </button>
         <button
           type="button"
           onClick={() => onDeleteLastRound(game.id)}
           disabled={roundCount === 0}
-          className="px-4 py-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-400 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
+          className="px-4 py-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-400 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
           aria-label={`Undo round ${roundCount}`}
+          title={`Undo round ${roundCount}`}
         >
-          {t.undoRound(roundCount)}
+          {/* Single curved-back arrow — undo last round, distinct from the full reset circular arrows */}
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+          </svg>
         </button>
       </div>
     </form>
