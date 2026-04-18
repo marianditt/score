@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import type { Game } from '../types';
 import { useLanguage } from '../i18n/index';
+import { useHighContrast } from '../hooks/useHighContrast';
 
 interface ScoreTableProps {
   game: Game;
@@ -41,6 +42,7 @@ function getLeadersAndWinners(game: Game): { leaderIds: string[]; winnerIds: str
 
 export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTableProps) {
   const { t } = useLanguage();
+  const { highContrast } = useHighContrast();
   // Use max across all players so newly added players (scores:[]) don't shrink the count
   const roundCount = Math.max(0, ...game.players.map(p => p.scores.length));
   const nextRound = roundCount + 1;
@@ -225,25 +227,28 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
 
       {/* Action row */}
       <div className="flex gap-3 mt-3">
-        {!gameOver && (
-          <button
-            type="submit"
-            className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
-            aria-label={`Save round ${nextRound} scores`}
-          >
-            {t.saveRound(nextRound)}
-          </button>
-        )}
-        {roundCount > 0 && (
-          <button
-            type="button"
-            onClick={() => onDeleteLastRound(game.id)}
-            className="px-4 py-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-400 hover:text-red-400 font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
-            aria-label={`Undo round ${roundCount}`}
-          >
-            {t.undoRound(roundCount)}
-          </button>
-        )}
+        <button
+          type="submit"
+          disabled={gameOver}
+          className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+          aria-label={`Add round ${nextRound}`}
+        >
+          + {t.round}
+        </button>
+        <button
+          type="button"
+          onClick={() => onDeleteLastRound(game.id)}
+          disabled={roundCount === 0}
+          className="px-4 py-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-400 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
+          aria-label={`Undo round ${roundCount}`}
+          title={`Undo round ${roundCount}`}
+        >
+          {highContrast ? `− ${t.round}` : (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+            </svg>
+          )}
+        </button>
       </div>
     </form>
   );

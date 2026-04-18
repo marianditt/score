@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import type { Game } from '../types';
 import { ScoreTable } from './ScoreTable';
-import { GameSettings } from './GameSettings';
+import { GameEditor } from './GameEditor';
 import { Confetti } from './Confetti';
 import { useLanguage } from '../i18n/index';
+import { useHighContrast } from '../hooks/useHighContrast';
 
 interface GameDetailProps {
   game: Game;
@@ -30,10 +31,14 @@ export function GameDetail({
   onUpdateGame,
 }: GameDetailProps) {
   const { t } = useLanguage();
+  const { highContrast } = useHighContrast();
   const [confirmReset, setConfirmReset] = useState(false);
   const [isEditingSettings, setIsEditingSettings] = useState(false);
 
   const gameOver = isGameOver(game);
+  const roundCount = game.players.length > 0
+    ? Math.max(0, ...game.players.map(p => p.scores.length))
+    : 0;
 
   function handleReset() {
     if (!confirmReset) {
@@ -46,10 +51,13 @@ export function GameDetail({
 
   if (isEditingSettings) {
     return (
-      <GameSettings
+      <GameEditor
         game={game}
-        onSave={updated => { onUpdateGame(updated); setIsEditingSettings(false); }}
-        onClose={() => setIsEditingSettings(false)}
+        onSave={(name, players, mode, threshold) => {
+          onUpdateGame({ ...game, name, players, mode, threshold });
+          setIsEditingSettings(false);
+        }}
+        onCancel={() => setIsEditingSettings(false)}
       />
     );
   }
@@ -67,9 +75,11 @@ export function GameDetail({
           className="p-2 text-gray-400 hover:text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 shrink-0"
           aria-label="Back to game list"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
+          {highContrast ? '←' : (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          )}
         </button>
 
         <div className="flex-1 min-w-0">
@@ -82,10 +92,15 @@ export function GameDetail({
         {/* Edit settings button */}
         <button
           onClick={() => { setConfirmReset(false); setIsEditingSettings(true); }}
-          className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-400 hover:text-white text-sm font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 shrink-0"
-          aria-label="Edit game settings"
+          className="p-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-400 hover:text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 shrink-0"
+          aria-label={t.editSettings}
+          title={t.editSettings}
         >
-          {t.editSettings}
+          {highContrast ? t.editSettings : (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-1.414.586H8v-2.414a2 2 0 01.586-1.414z" />
+            </svg>
+          )}
         </button>
 
         {/* Reset button */}
@@ -111,10 +126,16 @@ export function GameDetail({
         ) : (
           <button
             onClick={() => setConfirmReset(true)}
-            className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-400 hover:text-red-400 text-sm font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 shrink-0"
-            aria-label="Reset all scores to zero"
+            disabled={roundCount === 0}
+            className="p-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-400 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 shrink-0"
+            aria-label={t.reset}
+            title={t.reset}
           >
-            {t.reset}
+            {highContrast ? t.reset : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            )}
           </button>
         )}
       </header>

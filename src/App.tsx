@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useGames } from './hooks/useGames';
 import { useHighContrast } from './hooks/useHighContrast';
 import { GameList } from './components/GameList';
-import { GameSetup } from './components/GameSetup';
+import { GameEditor } from './components/GameEditor';
 import { GameDetail } from './components/GameDetail';
 import type { Game, Player } from './types';
 
@@ -45,8 +45,8 @@ function App() {
 
   if (view.kind === 'setup') {
     return (
-      <GameSetup
-        onStart={handleSetupStart}
+      <GameEditor
+        onSave={handleSetupStart}
         onCancel={handleBack}
       />
     );
