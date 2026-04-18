@@ -57,7 +57,7 @@ export class GameDetailPage {
   }
 
   roundRow(roundNumber: number): Locator {
-    return this.page.getByRole('row', { name: `Round ${roundNumber}` });
+    return this.page.getByRole('row', { name: `Round ${roundNumber}`, exact: true });
   }
 
   async enterRoundScores(scores: Record<string, number>, roundNumber: number): Promise<void> {

@@ -27,7 +27,7 @@ export class GameSetupPage {
     this.playerNameInput = page.getByLabel('New player name');
     this.addPlayerButton = page.getByRole('button', { name: 'Add player' });
     this.startGameButton = page.getByRole('button', { name: 'Start Game' });
-    this.cancelButton = page.getByRole('button', { name: 'Cancel' });
+    this.cancelButton = page.getByRole('button', { name: 'Cancel', exact: true });
     this.backButton = page.getByRole('button', { name: 'Cancel and go back to game list' });
     this.thresholdInput = page.locator('#setup-threshold');
     this.startHint = page.locator('#start-hint');

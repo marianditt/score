@@ -22,9 +22,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npx serve dist -p 4173 --no-clipboard',
+    command: 'npm run preview -- --port 4173',
     port: 4173,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true,
     timeout: 30_000,
   },
 });
