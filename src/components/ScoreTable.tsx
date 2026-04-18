@@ -165,13 +165,12 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
       sx={{ pb: 12 }}
     >
       <Box sx={{ position: 'relative', mb: 1.5 }}>
+        <Paper variant="outlined" sx={{ borderRadius: 1.5, overflow: 'hidden' }}>
         <TableContainer
           ref={tableContainerRef}
-          component={Paper}
-          variant="outlined"
           role="region"
           aria-label="Score table"
-          sx={{ borderRadius: 1.5, overflowX: 'auto' }}
+          sx={{ overflowX: 'auto' }}
         >
           <Table size="small" sx={{ tableLayout: 'fixed', width: '100%', minWidth: 36 + playerCount * MIN_COL_WIDTH }}>
             <TableHead>
@@ -395,6 +394,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
             </TableBody>
           </Table>
         </TableContainer>
+        </Paper>
 
         {/* Scroll-right indicator: fades in when there is hidden content to the right */}
         {canScrollRight && (
