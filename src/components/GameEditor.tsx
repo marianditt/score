@@ -140,7 +140,7 @@ export function GameEditor({ game, onSave, onCancel }: GameEditorProps) {
           >
             <ArrowBackIcon sx={{ transform: 'var(--rtl-flip, none)' }} />
           </IconButton>
-          <Typography variant="h6" component="h1" sx={{ ml: 1 }}>
+          <Typography variant="h6" component="h1" sx={{ marginInlineStart: 1 }}>
             {title}
           </Typography>
         </Toolbar>
@@ -224,7 +224,7 @@ export function GameEditor({ game, onSave, onCancel }: GameEditorProps) {
                       />
 
                       {isNew && (
-                        <Chip label="new" size="small" color="primary" variant="outlined" sx={{ mr: 0.5 }} />
+                        <Chip label="new" size="small" color="primary" variant="outlined" sx={{ marginInlineEnd: '4px' }} />
                       )}
 
                       {/* Gender toggle */}
@@ -266,7 +266,7 @@ export function GameEditor({ game, onSave, onCancel }: GameEditorProps) {
                 fullWidth
                 variant="outlined"
                 slotProps={{
-                  input: { startAdornment: <WcIcon sx={{ mr: 1, color: 'text.disabled' }} aria-hidden="true" /> },
+                  input: { startAdornment: <WcIcon sx={{ marginInlineEnd: theme => theme.spacing(1), color: 'text.disabled' }} aria-hidden="true" /> },
                   htmlInput: { ref: playerInputRef },
                 }}
               />

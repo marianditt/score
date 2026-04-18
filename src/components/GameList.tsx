@@ -23,7 +23,6 @@ import Paper from '@mui/material/Paper';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LanguageIcon from '@mui/icons-material/Language';
-import ContrastIcon from '@mui/icons-material/Contrast';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import SportsMartialArtsIcon from '@mui/icons-material/SportsMartialArts';
 
@@ -32,8 +31,6 @@ interface GameListProps {
   onSelectGame: (game: Game) => void;
   onNewGame: () => void;
   onDeleteGame: (id: string) => void;
-  highContrast: boolean;
-  onToggleHighContrast: () => void;
 }
 
 function getTotal(scores: (number | null)[]): number {
@@ -52,7 +49,7 @@ function getLeader(game: Game): { name: string; gender: 'male' | 'female' } | nu
   return { name: sorted[0].name, gender: sorted[0].gender };
 }
 
-export function GameList({ games, onSelectGame, onNewGame, onDeleteGame, highContrast, onToggleHighContrast }: GameListProps) {
+export function GameList({ games, onSelectGame, onNewGame, onDeleteGame }: GameListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [langAnchor, setLangAnchor] = useState<null | HTMLElement>(null);
   const { t, language, setLanguage, availableLanguages, languageNames, getGenderedT } = useLanguage();
@@ -84,20 +81,6 @@ export function GameList({ games, onSelectGame, onNewGame, onDeleteGame, highCon
           <Typography variant="h6" component="h1" sx={{ flexGrow: 1 }}>
             {t.appTitle}
           </Typography>
-
-          {/* High contrast toggle */}
-          <Tooltip title={t.highContrast}>
-            <IconButton
-              onClick={onToggleHighContrast}
-              aria-pressed={highContrast}
-              aria-label={t.highContrast}
-              data-testid="high-contrast-toggle"
-              color={highContrast ? 'secondary' : 'inherit'}
-              size="large"
-            >
-              <ContrastIcon />
-            </IconButton>
-          </Tooltip>
 
           {/* Language selector */}
           <Tooltip title={t.language}>
@@ -225,7 +208,7 @@ export function GameList({ games, onSelectGame, onNewGame, onDeleteGame, highCon
 
                       {/* Delete controls */}
                       <Box
-                        sx={{ display: 'flex', alignItems: 'center', pr: 1 }}
+                        sx={{ display: 'flex', alignItems: 'center', paddingInlineEnd: 1 }}
                         onClick={e => e.stopPropagation()}
                       >
                         {deletingId === game.id ? (
@@ -290,7 +273,7 @@ export function GameList({ games, onSelectGame, onNewGame, onDeleteGame, highCon
           color="primary"
           size="large"
         >
-          <AddIcon sx={{ mr: 1 }} />
+          <AddIcon sx={{ marginInlineEnd: theme => theme.spacing(1) }} />
           {t.newGame}
         </Fab>
       </Box>

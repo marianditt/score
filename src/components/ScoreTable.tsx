@@ -62,7 +62,7 @@ function getLeadersAndWinners(game: Game): { leaderIds: string[]; winnerIds: str
 const MIN_COL_WIDTH = 56;
 
 export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTableProps) {
-  const { getGenderedT } = useLanguage();
+  const { getGenderedT, isRTL } = useLanguage();
   const roundCount = Math.max(0, ...game.players.map(p => p.scores.length));
   const nextRound = roundCount + 1;
 
@@ -75,8 +75,10 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
   const [currentScores, setCurrentScores] = useState<Record<string, string>>(initScores);
   const firstInputRef = useRef<HTMLInputElement>(null);
   const tableContainerRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
+  // stickyOccludes: content is hidden behind the sticky column → show shadow on it
+  // endOverflows: more content exists in the scroll-end direction → show the fade indicator
+  const [stickyOccludes, setStickyOccludes] = useState(false);
+  const [endOverflows, setEndOverflows] = useState(false);
   const playerIds = game.players.map(p => p.id).join(',');
 
   const [prevPlayerIds, setPrevPlayerIds] = useState(playerIds);
@@ -94,8 +96,19 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
     if (!el) return;
     function updateScroll() {
       if (!el) return;
-      setCanScrollLeft(el.scrollLeft > 0);
-      setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+      const scrolledFromStart = el.scrollLeft;
+      const scrolledFromEnd = el.scrollWidth - el.clientWidth - el.scrollLeft;
+      if (isRTL) {
+        // Sticky column is at the logical start = physical right in RTL.
+        // Shadow shows when not fully scrolled to the right (content hidden on right behind sticky).
+        setStickyOccludes(scrolledFromEnd > 1);
+        setEndOverflows(scrolledFromStart > 0);
+      } else {
+        // Sticky column at logical start = physical left in LTR.
+        // Shadow shows when scrolled right (content hidden on left behind sticky).
+        setStickyOccludes(scrolledFromStart > 0);
+        setEndOverflows(scrolledFromEnd > 1);
+      }
     }
     updateScroll();
     el.addEventListener('scroll', updateScroll);
@@ -104,7 +117,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
       el.removeEventListener('scroll', updateScroll);
       window.removeEventListener('resize', updateScroll);
     };
-  }, [playerCount]);
+  }, [playerCount, isRTL]);
 
   const { leaderIds, winnerIds } = getLeadersAndWinners(game);
   const gameOver = winnerIds.length > 0;
@@ -182,7 +195,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                   sx={{
                     width: 36,
                     position: 'sticky',
-                    left: 0,
+                    insetInlineStart: 0,
                     zIndex: 2,
                     bgcolor: 'background.paper',
                     fontWeight: 700,
@@ -192,7 +205,9 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                     borderColor: 'divider',
                     py: 1.5,
                     px: { xs: 1, sm: 2 },
-                    boxShadow: canScrollLeft ? '4px 0 6px rgba(0,0,0,0.4)' : 'none',
+                    boxShadow: stickyOccludes
+                      ? isRTL ? '-4px 0 6px rgba(0,0,0,0.4)' : '4px 0 6px rgba(0,0,0,0.4)'
+                      : 'none',
                   }}
                 >
                   {/* header label removed for compact display */}
@@ -250,7 +265,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                   scope="row"
                   sx={{
                     position: 'sticky',
-                    left: 0,
+                    insetInlineStart: 0,
                     zIndex: 1,
                     bgcolor: 'background.paper',
                     fontWeight: 700,
@@ -258,7 +273,9 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                     borderRight: '1px solid',
                     ...totalCellSx('__total__'),
                     px: { xs: 1, sm: 2 },
-                    boxShadow: canScrollLeft ? '4px 0 6px rgba(0,0,0,0.4)' : 'none',
+                    boxShadow: stickyOccludes
+                      ? isRTL ? '-4px 0 6px rgba(0,0,0,0.4)' : '4px 0 6px rgba(0,0,0,0.4)'
+                      : 'none',
                   }}
                 >
                   #
@@ -292,9 +309,13 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                     scope="row"
                     sx={{
                       position: 'sticky',
-                      left: 0,
+                      insetInlineStart: 0,
                       zIndex: 1,
-                      bgcolor: 'rgba(124,77,255,0.12)',
+                      // Layered background: solid paper colour + translucent purple tint.
+                      // The bottom layer must be fully opaque so content scrolling behind
+                      // the sticky column cannot show through.
+                      background: theme =>
+                        `linear-gradient(rgba(124,77,255,0.12), rgba(124,77,255,0.12)), ${theme.palette.background.paper}`,
                       color: 'primary.light',
                       fontWeight: 700,
                       fontSize: '0.75rem',
@@ -303,7 +324,9 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                       whiteSpace: 'nowrap',
                       px: { xs: 1, sm: 2 },
                       py: 1,
-                      boxShadow: canScrollLeft ? '4px 0 6px rgba(0,0,0,0.4)' : 'none',
+                      boxShadow: stickyOccludes
+                        ? isRTL ? '-4px 0 6px rgba(0,0,0,0.4)' : '4px 0 6px rgba(0,0,0,0.4)'
+                        : 'none',
                     }}
                   >
                     R{nextRound}
@@ -323,15 +346,31 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                             style: { textAlign: 'center', padding: '4px 2px' },
                             onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => handleInputKeyDown(e, idx),
                             onFocus: (e: React.FocusEvent<HTMLInputElement>) => {
-                              e.target.scrollIntoView({ block: 'nearest', inline: 'nearest' });
                               const container = tableContainerRef.current;
                               if (!container) return;
+                              if (idx === 0) {
+                                // Scroll fully to the logical start so the shadow disappears.
+                                // In RTL the logical start is the physical right (max scrollLeft).
+                                container.scrollLeft = isRTL
+                                  ? container.scrollWidth - container.clientWidth
+                                  : 0;
+                                return;
+                              }
+                              e.target.scrollIntoView({ block: 'nearest', inline: 'nearest' });
                               const stickyWidth = 36;
                               const containerRect = container.getBoundingClientRect();
                               const elRect = e.target.getBoundingClientRect();
-                              const elLeftInContainer = elRect.left - containerRect.left;
-                              if (elLeftInContainer < stickyWidth) {
-                                container.scrollLeft -= (stickyWidth - elLeftInContainer);
+                              if (isRTL) {
+                                // Sticky column is on the physical right in RTL.
+                                const elRightInContainer = containerRect.right - elRect.right;
+                                if (elRightInContainer < stickyWidth) {
+                                  container.scrollLeft += (stickyWidth - elRightInContainer);
+                                }
+                              } else {
+                                const elLeftInContainer = elRect.left - containerRect.left;
+                                if (elLeftInContainer < stickyWidth) {
+                                  container.scrollLeft -= (stickyWidth - elLeftInContainer);
+                                }
                               }
                             },
                           },
@@ -362,7 +401,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                       scope="row"
                       sx={{
                         position: 'sticky',
-                        left: 0,
+                        insetInlineStart: 0,
                         zIndex: 1,
                         bgcolor: 'background.default',
                         color: 'text.disabled',
@@ -372,7 +411,9 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                         borderColor: 'divider',
                         px: { xs: 1, sm: 2 },
                         py: 1,
-                        boxShadow: canScrollLeft ? '4px 0 6px rgba(0,0,0,0.4)' : 'none',
+                        boxShadow: stickyOccludes
+                          ? isRTL ? '-4px 0 6px rgba(0,0,0,0.4)' : '4px 0 6px rgba(0,0,0,0.4)'
+                          : 'none',
                       }}
                     >
                       R{roundNumber}
@@ -396,18 +437,23 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
         </TableContainer>
         </Paper>
 
-        {/* Scroll-right indicator: fades in when there is hidden content to the right */}
-        {canScrollRight && (
+        {/* Scroll-end indicator: fades in when there is hidden content at the scroll end */}
+        {endOverflows && (
           <Box
             aria-hidden="true"
             sx={{
               position: 'absolute',
-              right: 0,
+              insetInlineEnd: 0,
               top: 0,
               bottom: 0,
               width: 48,
-              borderRadius: '0 6px 6px 0',
-              background: theme => `linear-gradient(to right, transparent, ${theme.palette.background.paper})`,
+              borderStartStartRadius: 0,
+              borderEndStartRadius: 0,
+              borderStartEndRadius: 6,
+              borderEndEndRadius: 6,
+              background: isRTL
+                ? theme => `linear-gradient(to left, transparent, ${theme.palette.background.paper})`
+                : theme => `linear-gradient(to right, transparent, ${theme.palette.background.paper})`,
               pointerEvents: 'none',
             }}
           />
@@ -456,7 +502,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
           size="large"
           aria-label={`${t.round} ${nextRound}`}
         >
-          <AddIcon sx={{ mr: 1 }} />
+          <AddIcon sx={{ marginInlineEnd: theme => theme.spacing(1) }} />
           {t.round}
         </Fab>
       </Box>

@@ -42,7 +42,7 @@ export function GameDetail({
   onResetGame,
   onUpdateGame,
 }: GameDetailProps) {
-  const { t } = useLanguage();
+  const { t, isRTL } = useLanguage();
   const [confirmReset, setConfirmReset] = useState(false);
   const [isEditingSettings, setIsEditingSettings] = useState(false);
 
@@ -91,7 +91,7 @@ export function GameDetail({
             <ArrowBackIcon sx={{ transform: 'var(--rtl-flip, none)' }} />
           </IconButton>
 
-          <Box sx={{ flex: 1, minWidth: 0, ml: 1, overflow: 'hidden' }}>
+          <Box sx={{ flex: 1, minWidth: 0, marginInlineStart: 1, overflow: 'hidden' }}>
             <Typography variant="h6" component="h1" noWrap sx={{ fontWeight: 700 }}>
               {game.name}
             </Typography>
@@ -100,19 +100,21 @@ export function GameDetail({
             </Typography>
           </Box>
 
-          {/* Controls overlay — absolutely positioned so the title text never wraps */}
+          {/* Controls overlay — absolutely positioned at the logical end so the title text never wraps */}
           <Box
             sx={{
               position: 'absolute',
-              right: 0,
+              insetInlineEnd: 0,
               top: 0,
               bottom: 0,
               display: 'flex',
               alignItems: 'center',
-              pl: 6,
-              pr: 1,
-              background: theme => `linear-gradient(to right, transparent, ${theme.palette.background.paper} 48px)`,
-              // 48 px: 6 px padding (pl:6) overlap region for the gradient fade
+              paddingInlineStart: theme => theme.spacing(6),
+              paddingInlineEnd: theme => theme.spacing(1),
+              background: isRTL
+                ? theme => `linear-gradient(to left, transparent, ${theme.palette.background.paper} 48px)`
+                : theme => `linear-gradient(to right, transparent, ${theme.palette.background.paper} 48px)`,
+              // 48 px: 6 spacing overlap region for the gradient fade
             }}
           >
             {/* Edit settings */}
@@ -129,7 +131,7 @@ export function GameDetail({
 
             {/* Reset */}
             {confirmReset ? (
-              <Stack direction="row" spacing={0.5} sx={{ ml: 0.5 }} role="alertdialog" aria-label={t.resetAllScoresQuestion}>
+              <Stack direction="row" spacing={0.5} sx={{ marginInlineStart: '4px' }} role="alertdialog" aria-label={t.resetAllScoresQuestion}>
                 <Button
                   size="small"
                   variant="contained"
