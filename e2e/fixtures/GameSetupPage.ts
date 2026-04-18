@@ -103,9 +103,8 @@ export class GameSetupPage {
     if (config.mode === 'lowest') {
       await this.selectLowestWins();
     }
-    if (config.threshold !== undefined) {
-      await this.setThreshold(config.threshold);
-    }
+    // Threshold is now required (must be > 0). Default to 100 when not specified.
+    await this.setThreshold(config.threshold !== undefined ? config.threshold : 100);
   }
 
   async startGame(): Promise<void> {

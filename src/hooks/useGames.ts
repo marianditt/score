@@ -3,8 +3,26 @@ import type { Game, Player } from '../types';
 
 const STORAGE_KEY = 'score-tracker-games';
 
-export function generateId(): string {
-  return Math.random().toString(36).substring(2, 9);
+/** Current storage schema version. Increment this when a migration is needed. */
+const CURRENT_VERSION = 1;
+
+interface StoredState {
+  version: number;
+  games: Game[];
+}
+
+/**
+ * Applies incremental migrations to bring stored state up to the current version.
+ * Empty states and already-current states are returned unchanged.
+ */
+function applyMigrations(state: StoredState): StoredState {
+  // v0 → v1: no structural change; version envelope was introduced
+  if (state.version < 1) {
+    state = { ...state, version: 1 };
+  }
+  // Future migrations go here, e.g.:
+  // if (state.version < 2) { state = migrateV1toV2(state); }
+  return state;
 }
 
 function loadGames(): Game[] {
@@ -12,19 +30,38 @@ function loadGames(): Game[] {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const parsed: unknown = JSON.parse(raw);
-    // Handle versioned envelope { version, games } written by a previous deployment
-    if (Array.isArray(parsed)) return parsed as Game[];
-    if (typeof parsed === 'object' && parsed !== null && Array.isArray((parsed as Record<string, unknown>).games)) {
-      return (parsed as { games: Game[] }).games;
+
+    let state: StoredState;
+    if (Array.isArray(parsed)) {
+      // Legacy: plain array stored without a version envelope (version 0)
+      state = { version: 0, games: parsed as Game[] };
+    } else if (
+      typeof parsed === 'object' &&
+      parsed !== null &&
+      Array.isArray((parsed as Record<string, unknown>).games)
+    ) {
+      state = parsed as StoredState;
+    } else {
+      return [];
     }
-    return [];
+
+    if (state.version < CURRENT_VERSION) {
+      state = applyMigrations(state);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    return state.games;
   } catch {
     return [];
   }
 }
 
 function saveGames(games: Game[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(games));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: CURRENT_VERSION, games }));
+}
+
+export function generateId(): string {
+  return Math.random().toString(36).substring(2, 9);
 }
 
 export function useGames() {

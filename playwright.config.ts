@@ -12,6 +12,7 @@ export default defineConfig({
     ['list'],
   ],
   use: {
+    // baseURL includes /score because the project is hosted on GitHub Pages under the /score path
     baseURL: 'http://localhost:4173/score',
     trace: 'on-first-retry',
   },

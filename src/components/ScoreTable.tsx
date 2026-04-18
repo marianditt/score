@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import type { Game } from '../types';
+import { useLanguage } from '../i18n/index';
 
 interface ScoreTableProps {
   game: Game;
@@ -33,6 +34,7 @@ function getLeaderAndWinner(game: Game): { leaderId: string | null; winnerId: st
 }
 
 export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTableProps) {
+  const { t } = useLanguage();
   const roundCount = game.players[0]?.scores.length ?? 0;
   const nextRound = roundCount + 1;
 
@@ -102,25 +104,39 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
   // Past rounds in reverse order (newest first → oldest last)
   const pastRoundIndices = Array.from({ length: roundCount }, (_, i) => roundCount - 1 - i);
 
+  // Mobile-friendly: compact columns to fit up to 6 players without horizontal scroll.
+  // Round column is sticky. Player columns use min-w that scales with player count.
+  const playerCount = game.players.length;
+  // ≤3 players: comfortable width; 4-6 players: compact but readable
+  const playerColClass = playerCount <= 3
+    ? 'min-w-[72px]'
+    : playerCount <= 6
+      ? 'min-w-[44px]'
+      : 'min-w-[64px]';
+  const cellPadding = playerCount <= 6 ? 'px-1 sm:px-3' : 'px-3';
+  const inputClass = playerCount <= 6
+    ? 'w-full min-w-0 bg-gray-700 border border-gray-600 text-white text-center rounded-md px-0.5 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent'
+    : 'w-full bg-gray-700 border border-gray-600 text-white text-center rounded-lg px-2 py-1.5 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent';
+
   return (
     <form onSubmit={handleAddRound} aria-label={`Score tracking for ${game.name}`}>
       <div className="overflow-x-auto rounded-xl border border-gray-700" role="region" aria-label="Score table">
         <table className="w-full text-sm border-collapse">
           <thead>
             <tr className="bg-gray-800 border-b border-gray-700">
-              <th scope="col" className="text-left px-3 py-3 font-semibold text-gray-300 min-w-[80px] w-24 sticky left-0 bg-gray-800 z-10">
-                Round
+              <th scope="col" className={`text-start ${cellPadding} py-3 font-semibold text-gray-300 w-8 sm:w-24 sticky start-0 bg-gray-800 z-10`}>
+                {t.round}
               </th>
               {game.players.map(player => (
                 <th
                   key={player.id}
                   scope="col"
-                  className={`px-3 py-3 text-center font-semibold min-w-[80px] ${colClass(player.id)}`}
+                  className={`${cellPadding} py-3 text-center font-semibold ${playerColClass} ${colClass(player.id)}`}
                 >
-                  <div className="flex items-center justify-center gap-1">
-                    {winnerId === player.id && <span aria-label="Winner" role="img">🏆</span>}
-                    {leaderId === player.id && <span aria-label="Current leader" role="img">⭐</span>}
-                    <span>{player.name}</span>
+                  <div className="flex items-center justify-center gap-0.5 sm:gap-1">
+                    {winnerId === player.id && <span aria-label={t.winner} role="img">🏆</span>}
+                    {leaderId === player.id && <span aria-label={t.currentLeader} role="img">⭐</span>}
+                    <span className="truncate max-w-[56px] sm:max-w-none">{player.name}</span>
                   </div>
                 </th>
               ))}
@@ -131,14 +147,14 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
             <tr aria-label="Total scores">
               <th
                 scope="row"
-                className="px-3 py-3 text-left font-bold text-gray-200 sticky left-0 bg-gray-800 z-10 border-b-2 border-gray-700"
+                className={`${cellPadding} py-3 text-start font-bold text-gray-200 sticky start-0 bg-gray-800 z-10 border-b-2 border-gray-700`}
               >
-                Total
+                {t.total}
               </th>
               {game.players.map(player => (
                 <td
                   key={player.id}
-                  className={`px-3 py-3 text-center text-lg ${totalCellClass(player.id)} ${colClass(player.id)}`}
+                  className={`${cellPadding} py-3 text-center text-lg ${totalCellClass(player.id)} ${colClass(player.id)}`}
                   aria-label={`${player.name} total: ${playerTotals[player.id]}`}
                 >
                   {playerTotals[player.id]}
@@ -148,12 +164,12 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
 
             {/* Current (editable) round row */}
             <tr className="bg-indigo-950/30 border-b border-gray-700" aria-label={`Round ${nextRound} — enter scores`}>
-              <th scope="row" className="px-3 py-2.5 text-left text-indigo-300 font-semibold text-xs sticky left-0 bg-indigo-950/50 z-10 whitespace-nowrap">
+              <th scope="row" className={`${cellPadding} py-2.5 text-start text-indigo-300 font-semibold text-xs sticky start-0 bg-indigo-950/50 z-10 whitespace-nowrap`}>
                 R{nextRound}
-                <span className="ml-1 text-indigo-400/60 font-normal text-[10px]">now</span>
+                <span className="ms-1 text-indigo-400/60 font-normal text-[10px] hidden sm:inline">{t.now}</span>
               </th>
               {game.players.map((player, idx) => (
-                <td key={player.id} className="px-2 py-2">
+                <td key={player.id} className={`${cellPadding} py-1.5 sm:py-2`}>
                   <input
                     ref={idx === 0 ? firstInputRef : undefined}
                     type="number"
@@ -163,7 +179,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                     placeholder="0"
                     aria-label={`${player.name} score for round ${nextRound}`}
                     inputMode="numeric"
-                    className="w-full bg-gray-700 border border-gray-600 text-white text-center rounded-lg px-2 py-1.5 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className={inputClass}
                   />
                 </td>
               ))}
@@ -178,11 +194,11 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                   className="border-b border-gray-700/50 hover:bg-gray-800/40 transition-colors"
                   aria-label={`Round ${roundNumber}`}
                 >
-                  <th scope="row" className="px-3 py-2.5 text-left text-gray-500 font-medium text-xs sticky left-0 bg-gray-900 z-10">
+                  <th scope="row" className={`${cellPadding} py-2.5 text-start text-gray-500 font-medium text-xs sticky start-0 bg-gray-900 z-10`}>
                     R{roundNumber}
                   </th>
                   {game.players.map(player => (
-                    <td key={player.id} className="px-3 py-2.5 text-center text-gray-300">
+                    <td key={player.id} className={`${cellPadding} py-2.5 text-center text-gray-300`}>
                       {player.scores[roundIdx] !== undefined ? player.scores[roundIdx] : (
                         <span className="text-gray-600" aria-hidden="true">—</span>
                       )}
@@ -202,7 +218,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
           className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
           aria-label={`Save round ${nextRound} scores`}
         >
-          + Save Round {nextRound}
+          {t.saveRound(nextRound)}
         </button>
         {roundCount > 0 && (
           <button
@@ -211,7 +227,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
             className="px-4 py-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-400 hover:text-red-400 font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
             aria-label={`Undo round ${roundCount}`}
           >
-            Undo R{roundCount}
+            {t.undoRound(roundCount)}
           </button>
         )}
       </div>
