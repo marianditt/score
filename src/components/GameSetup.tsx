@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { generateId } from '../hooks/useGames';
 import type { Player } from '../types';
+import { useLanguage } from '../i18n/index';
 
 interface GameSetupProps {
   onStart: (name: string, players: Player[], mode: 'highest' | 'lowest', threshold: number) => void;
@@ -8,15 +9,18 @@ interface GameSetupProps {
 }
 
 export function GameSetup({ onStart, onCancel }: GameSetupProps) {
+  const { t } = useLanguage();
   const [gameName, setGameName] = useState('');
   const [players, setPlayers] = useState<Player[]>([]);
   const [newPlayerName, setNewPlayerName] = useState('');
   const [mode, setMode] = useState<'highest' | 'lowest'>('highest');
-  const [threshold, setThreshold] = useState(100);
+  // Threshold starts empty — users must enter a value greater than 0
+  const [threshold, setThreshold] = useState<number | ''>('');
   const playerInputRef = useRef<HTMLInputElement>(null);
   const gameNameRef = useRef<HTMLInputElement>(null);
 
-  const canStart = gameName.trim().length > 0 && players.length > 0;
+  const thresholdValid = threshold !== '' && threshold > 0;
+  const canStart = gameName.trim().length > 0 && players.length > 0 && thresholdValid;
 
   function handleAddPlayer(e: React.FormEvent) {
     e.preventDefault();
@@ -59,12 +63,24 @@ export function GameSetup({ onStart, onCancel }: GameSetupProps) {
   function handleStart(e: React.FormEvent) {
     e.preventDefault();
     if (!canStart) return;
-    onStart(gameName.trim(), players, mode, threshold);
+    onStart(gameName.trim(), players, mode, threshold as number);
   }
 
   function handleThresholdChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const val = parseFloat(e.target.value);
+    const raw = e.target.value;
+    if (raw === '') {
+      setThreshold('');
+      return;
+    }
+    const val = parseFloat(raw);
     if (!isNaN(val)) setThreshold(val);
+  }
+
+  function startHintText(): string {
+    if (!gameName.trim()) return t.enterGameNameHint;
+    if (players.length === 0) return t.addPlayerHint;
+    if (!thresholdValid) return t.thresholdRequiredHint;
+    return '';
   }
 
   return (
@@ -77,18 +93,18 @@ export function GameSetup({ onStart, onCancel }: GameSetupProps) {
             className="p-2 text-gray-400 hover:text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
             aria-label="Cancel and go back to game list"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <h1 className="text-2xl font-bold text-white">New Game Setup</h1>
+          <h1 className="text-2xl font-bold text-white">{t.newGameSetup}</h1>
         </div>
 
         <form onSubmit={handleStart} noValidate>
           {/* Game Name */}
           <section className="bg-gray-800 rounded-xl border border-gray-700 p-4 mb-4" aria-labelledby="section-name">
             <h2 id="section-name" className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
-              Game Name
+              {t.gameName}
             </h2>
             <input
               ref={gameNameRef}
@@ -96,20 +112,20 @@ export function GameSetup({ onStart, onCancel }: GameSetupProps) {
               type="text"
               value={gameName}
               onChange={e => setGameName(e.target.value)}
-              placeholder="e.g. Catan, Ticket to Ride…"
+              placeholder={t.gameNamePlaceholder}
               required
               aria-required="true"
               aria-describedby="game-name-hint"
               className="w-full rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-500 px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               autoFocus
             />
-            <p id="game-name-hint" className="mt-1 text-xs text-gray-500">Required</p>
+            <p id="game-name-hint" className="mt-1 text-xs text-gray-500">{t.required}</p>
           </section>
 
           {/* Players */}
           <section className="bg-gray-800 rounded-xl border border-gray-700 p-4 mb-4" aria-labelledby="section-players">
             <h2 id="section-players" className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
-              Players <span className="text-gray-500 font-normal normal-case">(at least 1 required)</span>
+              {t.playersSection} <span className="text-gray-500 font-normal normal-case">{t.atLeastOne}</span>
             </h2>
 
             {players.length > 0 && (
@@ -170,7 +186,7 @@ export function GameSetup({ onStart, onCancel }: GameSetupProps) {
                 value={newPlayerName}
                 onChange={e => setNewPlayerName(e.target.value)}
                 onKeyDown={handlePlayerInputKeyDown}
-                placeholder="Player name…"
+                placeholder={t.playerNamePlaceholder}
                 aria-label="New player name"
                 className="flex-1 bg-gray-700 border border-gray-600 text-white placeholder-gray-500 rounded-lg px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
@@ -181,7 +197,7 @@ export function GameSetup({ onStart, onCancel }: GameSetupProps) {
                 className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 aria-label="Add player"
               >
-                Add
+                {t.add}
               </button>
             </div>
           </section>
@@ -189,12 +205,12 @@ export function GameSetup({ onStart, onCancel }: GameSetupProps) {
           {/* Settings */}
           <section className="bg-gray-800 rounded-xl border border-gray-700 p-4 mb-6" aria-labelledby="section-settings">
             <h2 id="section-settings" className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
-              Game Settings
+              {t.gameSettings}
             </h2>
             <div className="flex flex-wrap gap-6">
               {/* Win condition */}
               <fieldset>
-                <legend className="block text-sm text-gray-300 mb-1">Win Condition</legend>
+                <legend className="block text-sm text-gray-300 mb-1">{t.winCondition}</legend>
                 <div className="flex gap-2">
                   <button
                     type="button"
@@ -206,7 +222,7 @@ export function GameSetup({ onStart, onCancel }: GameSetupProps) {
                     }`}
                     aria-pressed={mode === 'highest'}
                   >
-                    ↑ Highest Wins
+                    {t.highestWinsButton}
                   </button>
                   <button
                     type="button"
@@ -218,7 +234,7 @@ export function GameSetup({ onStart, onCancel }: GameSetupProps) {
                     }`}
                     aria-pressed={mode === 'lowest'}
                   >
-                    ↓ Lowest Wins
+                    {t.lowestWinsButton}
                   </button>
                 </div>
               </fieldset>
@@ -226,14 +242,16 @@ export function GameSetup({ onStart, onCancel }: GameSetupProps) {
               {/* Score threshold */}
               <div>
                 <label htmlFor="setup-threshold" className="block text-sm text-gray-300 mb-1">
-                  Score Threshold
+                  {t.scoreThreshold}
                 </label>
                 <input
                   id="setup-threshold"
                   type="number"
                   value={threshold}
                   onChange={handleThresholdChange}
-                  className="w-28 bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  placeholder={t.scoreThresholdPlaceholder}
+                  min={1}
+                  className="w-28 bg-gray-700 border border-gray-600 text-white placeholder-gray-500 rounded-lg px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   aria-label="Score threshold to end game"
                 />
               </div>
@@ -247,7 +265,7 @@ export function GameSetup({ onStart, onCancel }: GameSetupProps) {
               onClick={onCancel}
               className="flex-1 py-3 bg-gray-700 hover:bg-gray-600 text-gray-200 font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900"
             >
-              Cancel
+              {t.cancel}
             </button>
             <button
               type="submit"
@@ -255,14 +273,12 @@ export function GameSetup({ onStart, onCancel }: GameSetupProps) {
               className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
               aria-describedby={!canStart ? 'start-hint' : undefined}
             >
-              Start Game
+              {t.startGame}
             </button>
           </div>
           {!canStart && (
             <p id="start-hint" className="text-center text-xs text-gray-500 mt-2" role="status" aria-live="polite">
-              {!gameName.trim()
-                ? 'Enter a game name to continue'
-                : 'Add at least one player to start'}
+              {startHintText()}
             </p>
           )}
         </form>

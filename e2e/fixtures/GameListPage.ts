@@ -8,12 +8,16 @@ export class GameListPage {
   readonly newGameButton: Locator;
   readonly emptyStateMessage: Locator;
   readonly gameList: Locator;
+  readonly languageSelector: Locator;
+  readonly highContrastToggle: Locator;
 
   constructor(readonly page: Page) {
     this.heading = page.getByRole('heading', { name: /Score Tracker/i });
     this.newGameButton = page.getByRole('button', { name: /new game/i });
     this.emptyStateMessage = page.getByText(/No games yet/i);
     this.gameList = page.getByRole('list', { name: /Saved games/i });
+    this.languageSelector = page.getByTestId('language-selector');
+    this.highContrastToggle = page.getByTestId('high-contrast-toggle');
   }
 
   gameCard(name: string): Locator {
@@ -54,5 +58,14 @@ export class GameListPage {
 
   async cancelDeleteGame(): Promise<void> {
     await this.cancelDeleteButton().click();
+  }
+
+  async selectLanguage(langCode: string): Promise<void> {
+    await this.languageSelector.click();
+    await this.page.getByTestId(`lang-option-${langCode}`).click();
+  }
+
+  async toggleHighContrast(): Promise<void> {
+    await this.highContrastToggle.click();
   }
 }

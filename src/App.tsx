@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useGames } from './hooks/useGames';
+import { useHighContrast } from './hooks/useHighContrast';
 import { GameList } from './components/GameList';
 import { GameSetup } from './components/GameSetup';
 import { GameDetail } from './components/GameDetail';
@@ -16,6 +17,8 @@ function App() {
     deleteLastRound,
     resetGame,
   } = useGames();
+
+  const { highContrast, toggleHighContrast } = useHighContrast();
 
   const [view, setView] = useState<AppView>({ kind: 'list' });
 
@@ -66,6 +69,8 @@ function App() {
       onSelectGame={handleSelectGame}
       onNewGame={handleNewGame}
       onDeleteGame={deleteGame}
+      highContrast={highContrast}
+      onToggleHighContrast={toggleHighContrast}
     />
   );
 }
