@@ -80,6 +80,10 @@ export interface Translations {
   winner: string;
   currentLeader: string;
 
+  // Game settings editing
+  editSettings: string;
+  saveGameSettings: string;
+
   // Preferences / Accessibility
   language: string;
   highContrast: string;
@@ -137,6 +141,8 @@ export const translations: Record<Language, Translations> = {
     roundLabel: (n) => `Round ${n}`,
     winner: 'Winner',
     currentLeader: 'Current leader',
+    editSettings: 'Edit',
+    saveGameSettings: 'Save',
     language: 'Language',
     highContrast: 'High Contrast',
     genderToggle: 'Gender',
@@ -192,6 +198,8 @@ export const translations: Record<Language, Translations> = {
     roundLabel: (n) => `Runde ${n}`,
     winner: 'Gewinner',
     currentLeader: 'Aktueller Führender',
+    editSettings: 'Bearbeiten',
+    saveGameSettings: 'Speichern',
     language: 'Sprache',
     highContrast: 'Hoher Kontrast',
     genderToggle: 'Geschlecht',
@@ -247,6 +255,8 @@ export const translations: Record<Language, Translations> = {
     roundLabel: (n) => `第${n}轮`,
     winner: '获胜者',
     currentLeader: '当前领先',
+    editSettings: '编辑',
+    saveGameSettings: '保存',
     language: '语言',
     highContrast: '高对比度',
     genderToggle: '性别',
@@ -302,6 +312,8 @@ export const translations: Record<Language, Translations> = {
     roundLabel: (n) => `दौर ${n}`,
     winner: 'विजेता',
     currentLeader: 'वर्तमान अग्रणी',
+    editSettings: 'संपादित करें',
+    saveGameSettings: 'सहेजें',
     language: 'भाषा',
     highContrast: 'उच्च कंट्रास्ट',
     genderToggle: 'लिंग',
@@ -357,6 +369,8 @@ export const translations: Record<Language, Translations> = {
     roundLabel: (n) => `Ronda ${n}`,
     winner: 'Ganador',
     currentLeader: 'Líder actual',
+    editSettings: 'Editar',
+    saveGameSettings: 'Guardar',
     language: 'Idioma',
     highContrast: 'Alto contraste',
     genderToggle: 'Género',
@@ -412,6 +426,8 @@ export const translations: Record<Language, Translations> = {
     roundLabel: (n) => `Manche ${n}`,
     winner: 'Gagnant',
     currentLeader: 'Leader actuel',
+    editSettings: 'Modifier',
+    saveGameSettings: 'Enregistrer',
     language: 'Langue',
     highContrast: 'Contraste élevé',
     genderToggle: 'Genre',
@@ -467,6 +483,8 @@ export const translations: Record<Language, Translations> = {
     roundLabel: (n) => `جولة ${n}`,
     winner: 'الفائز',
     currentLeader: 'المتصدر الحالي',
+    editSettings: 'تعديل',
+    saveGameSettings: 'حفظ',
     language: 'اللغة',
     highContrast: 'تباين عالٍ',
     genderToggle: 'الجنس',
@@ -522,6 +540,8 @@ export const translations: Record<Language, Translations> = {
     roundLabel: (n) => `রাউন্ড ${n}`,
     winner: 'বিজয়ী',
     currentLeader: 'বর্তমানে এগিয়ে',
+    editSettings: 'সম্পাদনা করুন',
+    saveGameSettings: 'সংরক্ষণ করুন',
     language: 'ভাষা',
     highContrast: 'উচ্চ কনট্রাস্ট',
     genderToggle: 'লিঙ্গ',
@@ -577,6 +597,8 @@ export const translations: Record<Language, Translations> = {
     roundLabel: (n) => `Rodada ${n}`,
     winner: 'Vencedor',
     currentLeader: 'Líder atual',
+    editSettings: 'Editar',
+    saveGameSettings: 'Salvar',
     language: 'Idioma',
     highContrast: 'Alto contraste',
     genderToggle: 'Gênero',

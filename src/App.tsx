@@ -13,6 +13,7 @@ function App() {
     games,
     createGame,
     deleteGame,
+    updateGame,
     addRound,
     deleteLastRound,
     resetGame,
@@ -59,6 +60,7 @@ function App() {
         onAddRound={addRound}
         onDeleteLastRound={deleteLastRound}
         onResetGame={resetGame}
+        onUpdateGame={updateGame}
       />
     );
   }

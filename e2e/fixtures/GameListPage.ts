@@ -62,6 +62,10 @@ export class GameListPage {
     await this.cancelDeleteButton().click();
   }
 
+  async toggleHighContrast(): Promise<void> {
+    await this.highContrastToggle.click();
+  }
+
   async selectLanguage(langCode: string): Promise<void> {
     await this.languageSelector.click();
     await this.page.getByTestId(`lang-option-${langCode}`).click();
