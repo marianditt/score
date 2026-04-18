@@ -55,13 +55,7 @@ export function GameList({ games, onSelectGame, onNewGame, onDeleteGame, highCon
       <div className="max-w-2xl mx-auto">
         <header className="mb-8">
           <div className="flex items-start justify-between gap-2 mb-1">
-            <h1 className="text-4xl font-bold text-white flex items-center gap-2">
-              {/* Dice icon */}
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-9 w-9 text-indigo-400" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M5 3a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2H5zm3 4a1 1 0 110 2 1 1 0 010-2zm8 0a1 1 0 110 2 1 1 0 010-2zm-4 4a1 1 0 110 2 1 1 0 010-2zM8 15a1 1 0 110 2 1 1 0 010-2zm8 0a1 1 0 110 2 1 1 0 010-2z"/>
-              </svg>
-              {t.appTitle}
-            </h1>
+            <h1 className="text-4xl font-bold text-white">🎲 {t.appTitle}</h1>
             {/* Accessibility and language controls */}
             <div className="flex items-center gap-2 mt-1 shrink-0 relative">
               {/* High contrast toggle */}
@@ -84,18 +78,14 @@ export function GameList({ games, onSelectGame, onNewGame, onDeleteGame, highCon
               <div className="relative">
                 <button
                   onClick={() => setShowLangMenu(v => !v)}
-                  className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium bg-gray-800 text-gray-300 border border-gray-700 hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="px-2 py-1.5 rounded-lg text-xs font-medium bg-gray-800 text-gray-300 border border-gray-700 hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   aria-label={t.language}
                   aria-haspopup="listbox"
                   aria-expanded={showLangMenu}
                   title={t.language}
                   data-testid="language-selector"
                 >
-                  {/* Globe icon */}
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm6.918 6h-2.833c-.24-1.408-.63-2.674-1.144-3.72A8.027 8.027 0 0118.918 8zM12 4c.74 0 1.717 1.348 2.315 4H9.685C10.283 5.348 11.26 4 12 4zM4.082 14a8.1 8.1 0 010-4H7.1a18.1 18.1 0 000 4H4.082zm.999 2H7.9c.24 1.408.63 2.674 1.143 3.72A8.027 8.027 0 015.081 16zm2.82-8H5.081a8.027 8.027 0 014.861-3.72C9.428 5.326 9.04 6.592 8.8 8H7.9zM12 20c-.74 0-1.717-1.348-2.315-4h4.63C13.717 18.652 12.74 20 12 20zm2.9-6H9.1a16.1 16.1 0 010-4h5.8a16.1 16.1 0 010 4zm.258 6c.514-1.046.904-2.312 1.143-3.72h2.82A8.027 8.027 0 0115.158 20zm1.742-8a18.1 18.1 0 000-4h3.018a8.1 8.1 0 010 4h-3.018z"/>
-                  </svg>
-                  {languageNames[language]}
+                  🌐 {languageNames[language]}
                 </button>
                 {showLangMenu && (
                   <ul
@@ -140,12 +130,7 @@ export function GameList({ games, onSelectGame, onNewGame, onDeleteGame, highCon
         {/* Game List */}
         {sortedGames.length === 0 ? (
           <div className="text-center py-16 text-gray-500">
-            {/* Target/bullseye icon */}
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto mb-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-              <circle cx="12" cy="12" r="10"/>
-              <circle cx="12" cy="12" r="6"/>
-              <circle cx="12" cy="12" r="2"/>
-            </svg>
+            <p className="text-5xl mb-4" aria-hidden="true">🎯</p>
             <p className="text-xl font-medium mb-2 text-gray-300">{t.noGamesTitle}</p>
             <p>{t.noGamesHint}</p>
           </div>

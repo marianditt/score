@@ -202,15 +202,7 @@ export function GameEditor({ game, onSave, onCancel }: GameEditorProps) {
                         aria-label={`Toggle gender for ${player.name}: currently ${player.gender}`}
                         title={player.gender === 'female' ? 'Female' : 'Male'}
                       >
-                        {player.gender === 'female' ? (
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                            <path d="M12 2a6 6 0 100 12A6 6 0 0012 2zm0 10a4 4 0 110-8 4 4 0 010 8zm1 3h-2v2H9v2h2v2h2v-2h2v-2h-2v-2z"/>
-                          </svg>
-                        ) : (
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                            <path d="M15 2h5v5h-2V4.414l-3.293 3.293A6 6 0 1111 18.917V21H9v-2H7v-2h2v-2.083A6 6 0 1115 7.414V4h-2V2h2zm-3 5a4 4 0 100 8 4 4 0 000-8z"/>
-                          </svg>
-                        )}
+                        {player.gender === 'female' ? '♀' : '♂'}
                       </button>
 
                       <button
