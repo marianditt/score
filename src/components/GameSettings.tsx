@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import type { Game, Player } from '../types';
 import { useLanguage } from '../i18n/index';
 import { generateId } from '../hooks/useGames';
+import { useHighContrast } from '../hooks/useHighContrast';
 
 interface GameSettingsProps {
   game: Game;
@@ -11,6 +12,7 @@ interface GameSettingsProps {
 
 export function GameSettings({ game, onSave, onClose }: GameSettingsProps) {
   const { t } = useLanguage();
+  const { highContrast } = useHighContrast();
   const [gameName, setGameName] = useState(game.name);
   const [mode, setMode] = useState<'highest' | 'lowest'>(game.mode);
   const [threshold, setThreshold] = useState<number | ''>(game.threshold);

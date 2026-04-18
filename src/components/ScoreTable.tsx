@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import type { Game } from '../types';
 import { useLanguage } from '../i18n/index';
+import { useHighContrast } from '../hooks/useHighContrast';
 
 interface ScoreTableProps {
   game: Game;
@@ -41,6 +42,7 @@ function getLeadersAndWinners(game: Game): { leaderIds: string[]; winnerIds: str
 
 export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTableProps) {
   const { t } = useLanguage();
+  const { highContrast } = useHighContrast();
   // Use max across all players so newly added players (scores:[]) don't shrink the count
   const roundCount = Math.max(0, ...game.players.map(p => p.scores.length));
   const nextRound = roundCount + 1;
@@ -241,10 +243,11 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
           aria-label={`Undo round ${roundCount}`}
           title={`Undo round ${roundCount}`}
         >
-          {/* Single curved-back arrow — undo last round, distinct from the full reset circular arrows */}
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
-          </svg>
+          {highContrast ? `− ${t.round}` : (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+            </svg>
+          )}
         </button>
       </div>
     </form>

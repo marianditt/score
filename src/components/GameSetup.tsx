@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { generateId } from '../hooks/useGames';
 import type { Player } from '../types';
 import { useLanguage } from '../i18n/index';
+import { useHighContrast } from '../hooks/useHighContrast';
 
 interface GameSetupProps {
   onStart: (name: string, players: Player[], mode: 'highest' | 'lowest', threshold: number) => void;
@@ -10,6 +11,7 @@ interface GameSetupProps {
 
 export function GameSetup({ onStart, onCancel }: GameSetupProps) {
   const { t } = useLanguage();
+  const { highContrast } = useHighContrast();
   const [gameName, setGameName] = useState('');
   const [players, setPlayers] = useState<Player[]>([]);
   const [newPlayerName, setNewPlayerName] = useState('');
@@ -93,9 +95,11 @@ export function GameSetup({ onStart, onCancel }: GameSetupProps) {
             className="p-2 text-gray-400 hover:text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
             aria-label="Cancel and go back to game list"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
+            {highContrast ? '←' : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            )}
           </button>
           <h1 className="text-2xl font-bold text-white">{t.newGameSetup}</h1>
         </div>
@@ -144,9 +148,11 @@ export function GameSetup({ onStart, onCancel }: GameSetupProps) {
                         className="p-0.5 text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed rounded transition-colors focus:outline-none focus:ring-1 focus:ring-indigo-500"
                         aria-label={`Move ${player.name} up`}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                          <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
-                        </svg>
+                        {highContrast ? '↑' : (
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
+                          </svg>
+                        )}
                       </button>
                       <button
                         type="button"
@@ -155,9 +161,11 @@ export function GameSetup({ onStart, onCancel }: GameSetupProps) {
                         className="p-0.5 text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed rounded transition-colors focus:outline-none focus:ring-1 focus:ring-indigo-500"
                         aria-label={`Move ${player.name} down`}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
+                        {highContrast ? '↓' : (
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        )}
                       </button>
                     </div>
 
@@ -169,9 +177,11 @@ export function GameSetup({ onStart, onCancel }: GameSetupProps) {
                       className="p-1.5 text-gray-500 hover:text-red-400 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
                       aria-label={`Remove player ${player.name}`}
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                      </svg>
+                      {highContrast ? '×' : (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      )}
                     </button>
                   </li>
                 ))}
