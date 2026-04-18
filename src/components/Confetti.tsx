@@ -39,7 +39,7 @@ export function Confetti() {
 
   return (
     <div
-      className="fixed inset-0 pointer-events-none z-50 overflow-hidden"
+      className="confetti-overlay"
       aria-hidden="true"
       data-testid="confetti"
     >
@@ -62,3 +62,4 @@ export function Confetti() {
     </div>
   );
 }
+

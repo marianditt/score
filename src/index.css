@@ -1,76 +1,20 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* ─── Confetti animation ─────────────────────────────────────────────────── */
 @keyframes confetti-fall {
   0%   { transform: translateY(0)     rotate(0deg);   opacity: 1; }
   100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
 }
 
-/* ─── High-contrast accessibility mode ──────────────────────────────────────
-   Activated by setting data-hc="true" on the <html> element.
-   Overrides subtle transparency, low-contrast greys, and decorative gradients
-   with solid, clearly readable colours. All interactive elements get a
-   prominent 2 px border so their boundary is always visible.
- ─────────────────────────────────────────────────────────────────────────── */
-[data-hc="true"] {
-  --hc-bg:       #000000;
-  --hc-surface:  #111111;
-  --hc-border:   #ffffff;
-  --hc-text:     #ffffff;
-  --hc-muted:    #ffff00;
-  --hc-accent:   #00ccff;
-  --hc-danger:   #ff4444;
-  --hc-winner:   #ffd700;
-  --hc-leader:   #00ccff;
+/* ─── Confetti overlay layout (inline styles drive all other props) ─────── */
+.confetti-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
 }
 
-[data-hc="true"] body,
-[data-hc="true"] .bg-gray-900  { background-color: var(--hc-bg)      !important; }
-[data-hc="true"] .bg-gray-800  { background-color: var(--hc-surface) !important; }
-[data-hc="true"] .bg-gray-700,
-[data-hc="true"] .bg-gray-700\/50 { background-color: #1a1a1a !important; }
-
-[data-hc="true"] .text-gray-400,
-[data-hc="true"] .text-gray-300,
-[data-hc="true"] .text-gray-200,
-[data-hc="true"] .text-gray-500 { color: var(--hc-text) !important; }
-
-[data-hc="true"] .text-indigo-300,
-[data-hc="true"] .text-indigo-400 { color: var(--hc-leader) !important; }
-
-[data-hc="true"] .text-yellow-300 { color: var(--hc-winner) !important; }
-
-[data-hc="true"] .border-gray-700,
-[data-hc="true"] .border-gray-600,
-[data-hc="true"] .border-gray-800 { border-color: var(--hc-border) !important; }
-
-[data-hc="true"] .bg-indigo-600,
-[data-hc="true"] .hover\:bg-indigo-500:hover { background-color: var(--hc-accent) !important; color: #000 !important; }
-
-[data-hc="true"] .bg-red-600,
-[data-hc="true"] .hover\:bg-red-500:hover    { background-color: var(--hc-danger) !important; color: #000 !important; }
-
-[data-hc="true"] .bg-indigo-950\/30,
-[data-hc="true"] .bg-indigo-950\/50,
-[data-hc="true"] .bg-yellow-900\/40,
-[data-hc="true"] .bg-indigo-900\/30 { background-color: #1a1a1a !important; }
-
-/* Ensure interactive elements always have a visible border */
-[data-hc="true"] button,
-[data-hc="true"] input {
-  border-width: 2px !important;
-  border-color: var(--hc-border) !important;
+/* ─── RTL icon flip helper ───────────────────────────────────────────────── */
+[dir="rtl"] {
+  --rtl-flip: scaleX(-1);
 }
 
-[data-hc="true"] .bg-indigo-600 button,
-[data-hc="true"] button.bg-indigo-600 {
-  border-color: var(--hc-accent) !important;
-}
-
-/* Keep focus rings extra prominent */
-[data-hc="true"] *:focus {
-  outline: 3px solid var(--hc-muted) !important;
-  outline-offset: 2px !important;
-}
