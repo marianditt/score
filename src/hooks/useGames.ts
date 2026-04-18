@@ -29,7 +29,7 @@ function applyMigrations(state: StoredState): StoredState {
         ...g,
         players: g.players.map(p => ({
           ...p,
-          gender: (p.gender ?? 'male') as 'male' | 'female',
+          gender: p.gender ?? 'male',
         })),
       })),
     };
