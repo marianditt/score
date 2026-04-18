@@ -349,8 +349,9 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                               const container = tableContainerRef.current;
                               if (!container) return;
                               if (idx === 0) {
-                                // Scroll fully to the logical start so the shadow disappears.
-                                // In RTL the logical start is the physical right (max scrollLeft).
+                                // The first player is at the logical start of the table.
+                                // Scroll fully to that start position so the sticky-column
+                                // shadow disappears completely (no content hidden behind it).
                                 container.scrollLeft = isRTL
                                   ? container.scrollWidth - container.clientWidth
                                   : 0;

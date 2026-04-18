@@ -131,7 +131,7 @@ export function GameDetail({
 
             {/* Reset */}
             {confirmReset ? (
-              <Stack direction="row" spacing={0.5} sx={{ marginInlineStart: '4px' }} role="alertdialog" aria-label={t.resetAllScoresQuestion}>
+              <Stack direction="row" spacing={0.5} sx={{ marginInlineStart: theme => theme.spacing(0.5) }} role="alertdialog" aria-label={t.resetAllScoresQuestion}>
                 <Button
                   size="small"
                   variant="contained"

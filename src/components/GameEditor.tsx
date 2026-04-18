@@ -224,7 +224,7 @@ export function GameEditor({ game, onSave, onCancel }: GameEditorProps) {
                       />
 
                       {isNew && (
-                        <Chip label="new" size="small" color="primary" variant="outlined" sx={{ marginInlineEnd: '4px' }} />
+                        <Chip label="new" size="small" color="primary" variant="outlined" sx={{ marginInlineEnd: theme => theme.spacing(0.5) }} />
                       )}
 
                       {/* Gender toggle */}
