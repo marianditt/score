@@ -17,7 +17,6 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
 import Paper from '@mui/material/Paper';
 
@@ -157,7 +156,7 @@ export function GameList({ games, onSelectGame, onNewGame, onDeleteGame, highCon
           </Box>
         ) : (
           <List role="list" aria-label="Saved games" disablePadding>
-            {sortedGames.map((game, index) => {
+            {sortedGames.map((game) => {
               const roundCount = game.players[0]?.scores.length ?? 0;
               const gameLeader = getLeader(game);
               const modeLabel = game.mode === 'highest' ? t.highestWins : t.lowestWins;
@@ -170,7 +169,6 @@ export function GameList({ games, onSelectGame, onNewGame, onDeleteGame, highCon
                   disablePadding
                   sx={{ display: 'block', mb: 1 }}
                 >
-                  {index > 0 && <Divider sx={{ display: 'none' }} />}
                   <Paper
                     variant="outlined"
                     sx={{
