@@ -75,6 +75,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
   const [currentScores, setCurrentScores] = useState<Record<string, string>>(initScores);
   const firstInputRef = useRef<HTMLInputElement>(null);
   const tableContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const playerIds = game.players.map(p => p.id).join(',');
 
@@ -93,6 +94,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
     if (!el) return;
     function updateScroll() {
       if (!el) return;
+      setCanScrollLeft(el.scrollLeft > 0);
       setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
     }
     updateScroll();
@@ -191,6 +193,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                     borderColor: 'divider',
                     py: 1.5,
                     px: { xs: 1, sm: 2 },
+                    boxShadow: canScrollLeft ? '4px 0 6px rgba(0,0,0,0.4)' : 'none',
                   }}
                 >
                   {/* header label removed for compact display */}
@@ -256,6 +259,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                     borderRight: '1px solid',
                     ...totalCellSx('__total__'),
                     px: { xs: 1, sm: 2 },
+                    boxShadow: canScrollLeft ? '4px 0 6px rgba(0,0,0,0.4)' : 'none',
                   }}
                 >
                   #
@@ -300,6 +304,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                       whiteSpace: 'nowrap',
                       px: { xs: 1, sm: 2 },
                       py: 1,
+                      boxShadow: canScrollLeft ? '4px 0 6px rgba(0,0,0,0.4)' : 'none',
                     }}
                   >
                     R{nextRound}
@@ -368,6 +373,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                         borderColor: 'divider',
                         px: { xs: 1, sm: 2 },
                         py: 1,
+                        boxShadow: canScrollLeft ? '4px 0 6px rgba(0,0,0,0.4)' : 'none',
                       }}
                     >
                       R{roundNumber}
