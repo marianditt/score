@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
-    "test:e2e": "PW_DISABLE_TS_ESM=1 playwright test"
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "react": "^19.2.4",
