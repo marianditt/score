@@ -1,9 +1,12 @@
 import { useState } from 'react';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
 import { useGames } from './hooks/useGames';
 import { useHighContrast } from './hooks/useHighContrast';
 import { GameList } from './components/GameList';
 import { GameEditor } from './components/GameEditor';
 import { GameDetail } from './components/GameDetail';
+import { darkTheme, highContrastTheme } from './theme';
 import type { Game, Player } from './types';
 
 type AppView = { kind: 'list' } | { kind: 'setup' } | { kind: 'game'; gameId: string };
@@ -43,38 +46,38 @@ function App() {
     setView({ kind: 'list' });
   }
 
-  if (view.kind === 'setup') {
-    return (
-      <GameEditor
-        onSave={handleSetupStart}
-        onCancel={handleBack}
-      />
-    );
-  }
-
-  if (view.kind === 'game' && selectedGame) {
-    return (
-      <GameDetail
-        game={selectedGame}
-        onBack={handleBack}
-        onAddRound={addRound}
-        onDeleteLastRound={deleteLastRound}
-        onResetGame={resetGame}
-        onUpdateGame={updateGame}
-      />
-    );
-  }
+  const activeTheme = highContrast ? highContrastTheme : darkTheme;
 
   return (
-    <GameList
-      games={games}
-      onSelectGame={handleSelectGame}
-      onNewGame={handleNewGame}
-      onDeleteGame={deleteGame}
-      highContrast={highContrast}
-      onToggleHighContrast={toggleHighContrast}
-    />
+    <ThemeProvider theme={activeTheme}>
+      <CssBaseline />
+      {view.kind === 'setup' ? (
+        <GameEditor
+          onSave={handleSetupStart}
+          onCancel={handleBack}
+        />
+      ) : view.kind === 'game' && selectedGame ? (
+        <GameDetail
+          game={selectedGame}
+          onBack={handleBack}
+          onAddRound={addRound}
+          onDeleteLastRound={deleteLastRound}
+          onResetGame={resetGame}
+          onUpdateGame={updateGame}
+        />
+      ) : (
+        <GameList
+          games={games}
+          onSelectGame={handleSelectGame}
+          onNewGame={handleNewGame}
+          onDeleteGame={deleteGame}
+          highContrast={highContrast}
+          onToggleHighContrast={toggleHighContrast}
+        />
+      )}
+    </ThemeProvider>
   );
 }
 
 export default App;
+

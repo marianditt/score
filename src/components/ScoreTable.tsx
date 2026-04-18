@@ -1,7 +1,26 @@
 import { useState, useRef } from 'react';
 import type { Game } from '../types';
 import { useLanguage } from '../i18n/index';
-import { useHighContrast } from '../hooks/useHighContrast';
+
+import Box from '@mui/material/Box';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import TextField from '@mui/material/TextField';
+import Stack from '@mui/material/Stack';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
+
+import AddIcon from '@mui/icons-material/Add';
+import UndoIcon from '@mui/icons-material/Undo';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import StarIcon from '@mui/icons-material/Star';
 
 interface ScoreTableProps {
   game: Game;
@@ -16,7 +35,6 @@ function getTotal(scores: number[]): number {
 function getLeadersAndWinners(game: Game): { leaderIds: string[]; winnerIds: string[] } {
   if (game.players.length === 0) return { leaderIds: [], winnerIds: [] };
 
-  // Nobody leads before any rounds are played
   const roundCount = Math.max(0, ...game.players.map(p => p.scores.length));
   if (roundCount === 0) return { leaderIds: [], winnerIds: [] };
 
@@ -42,8 +60,6 @@ function getLeadersAndWinners(game: Game): { leaderIds: string[]; winnerIds: str
 
 export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTableProps) {
   const { getGenderedT } = useLanguage();
-  const { highContrast } = useHighContrast();
-  // Use max across all players so newly added players (scores:[]) don't shrink the count
   const roundCount = Math.max(0, ...game.players.map(p => p.scores.length));
   const nextRound = roundCount + 1;
 
@@ -68,7 +84,6 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
   const { leaderIds, winnerIds } = getLeadersAndWinners(game);
   const gameOver = winnerIds.length > 0;
 
-  // Use a neutral translation for non-player-specific labels (round, total, etc.)
   const t = getGenderedT('male');
 
   const playerTotals: Record<string, number> = {};
@@ -100,166 +115,282 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
     }
   }
 
-  function colClass(playerId: string): string {
-    if (winnerIds.includes(playerId)) return 'text-yellow-300 font-bold';
-    if (leaderIds.includes(playerId)) return 'text-indigo-300 font-semibold';
-    return 'text-white';
-  }
-
-  function totalCellClass(playerId: string): string {
-    if (winnerIds.includes(playerId)) return 'bg-yellow-900/40 border-b-2 border-yellow-500';
-    if (leaderIds.includes(playerId)) return 'bg-indigo-900/30 border-b-2 border-indigo-500';
-    return 'border-b-2 border-gray-700';
-  }
-
   if (game.players.length === 0) return null;
 
-  // Past rounds in reverse order (newest first → oldest last)
+  const playerCount = game.players.length;
+  // Compact header cell width to fit ≤6 players without horizontal scroll on mobile
+  const headerMinWidth = playerCount <= 3 ? 80 : playerCount <= 6 ? 52 : 72;
+
+  // Winner / leader colours
+  function playerHeadSx(playerId: string) {
+    if (winnerIds.includes(playerId)) return { color: 'secondary.main', fontWeight: 800 };
+    if (leaderIds.includes(playerId)) return { color: 'primary.light', fontWeight: 700 };
+    return {};
+  }
+
+  function totalCellSx(playerId: string) {
+    if (winnerIds.includes(playerId)) return { bgcolor: 'rgba(255,214,0,0.12)', borderBottom: '2px solid', borderColor: 'secondary.main' };
+    if (leaderIds.includes(playerId)) return { bgcolor: 'rgba(124,77,255,0.12)', borderBottom: '2px solid', borderColor: 'primary.main' };
+    return { borderBottom: '2px solid', borderColor: 'divider' };
+  }
+
   const pastRoundIndices = Array.from({ length: roundCount }, (_, i) => roundCount - 1 - i);
 
-  // Mobile-friendly: compact columns to fit up to 6 players without horizontal scroll.
-  // Round column is sticky. Player columns use min-w that scales with player count.
-  const playerCount = game.players.length;
-  // ≤3 players: comfortable width; 4-6 players: compact but readable
-  const playerColClass = playerCount <= 3
-    ? 'min-w-[72px]'
-    : playerCount <= 6
-      ? 'min-w-[44px]'
-      : 'min-w-[64px]';
-  const cellPadding = playerCount <= 6 ? 'px-1 sm:px-3' : 'px-3';
-  const inputClass = playerCount <= 6
-    ? 'w-full min-w-0 bg-gray-700 border border-gray-600 text-white text-center rounded-md px-0.5 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent'
-    : 'w-full bg-gray-700 border border-gray-600 text-white text-center rounded-lg px-2 py-1.5 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent';
-
   return (
-    <form onSubmit={handleAddRound} aria-label={`Score tracking for ${game.name}`}>
-      <div className="overflow-x-auto rounded-xl border border-gray-700" role="region" aria-label="Score table">
-        <table className="w-full text-sm border-collapse">
-          <thead>
-            <tr className="bg-gray-800 border-b border-gray-700">
-              <th scope="col" className={`text-start ${cellPadding} py-3 font-semibold text-gray-300 w-8 sm:w-24 sticky start-0 bg-gray-800 z-10`}>
+    <Box
+      component="form"
+      onSubmit={handleAddRound}
+      aria-label={`Score tracking for ${game.name}`}
+    >
+      <TableContainer
+        component={Paper}
+        variant="outlined"
+        role="region"
+        aria-label="Score table"
+        sx={{ borderRadius: 3, mb: 1.5 }}
+      >
+        <Table size="small" sx={{ tableLayout: 'fixed' }}>
+          <TableHead>
+            <TableRow>
+              {/* Round column – sticky */}
+              <TableCell
+                component="th"
+                scope="col"
+                sx={{
+                  width: 36,
+                  position: 'sticky',
+                  left: 0,
+                  zIndex: 2,
+                  bgcolor: 'background.paper',
+                  fontWeight: 700,
+                  color: 'text.secondary',
+                  fontSize: '0.75rem',
+                  borderRight: '1px solid',
+                  borderColor: 'divider',
+                  py: 1.5,
+                  px: { xs: 1, sm: 2 },
+                }}
+              >
                 {t.round}
-              </th>
+              </TableCell>
               {game.players.map(player => {
                 const pt = getGenderedT(player.gender);
                 return (
-                  <th
+                  <TableCell
                     key={player.id}
+                    component="th"
                     scope="col"
-                    className={`${cellPadding} py-3 text-center font-semibold ${playerColClass} ${colClass(player.id)}`}
+                    align="center"
+                    sx={{
+                      minWidth: headerMinWidth,
+                      py: 1,
+                      px: { xs: 0.5, sm: 1.5 },
+                      ...playerHeadSx(player.id),
+                    }}
                   >
-                    <div className="flex flex-col items-center justify-center">
-                      <div className="h-5 flex items-center justify-center">
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>
+                      <Box sx={{ height: 20, display: 'flex', alignItems: 'center' }}>
                         {winnerIds.includes(player.id) && (
-                          <span aria-label={pt.winner} role="img">🏆</span>
+                          <EmojiEventsIcon
+                            fontSize="small"
+                            sx={{ color: 'secondary.main' }}
+                            aria-label={pt.winner}
+                          />
                         )}
                         {leaderIds.includes(player.id) && (
-                          <span aria-label={pt.currentLeader} role="img">⭐</span>
+                          <StarIcon
+                            fontSize="small"
+                            sx={{ color: 'primary.light' }}
+                            aria-label={pt.currentLeader}
+                          />
                         )}
-                      </div>
-                      <span className="truncate max-w-[56px] sm:max-w-none">{player.name}</span>
-                    </div>
-                  </th>
+                      </Box>
+                      <Typography
+                        variant="caption"
+                        sx={{ fontWeight: 'inherit', display: 'block', maxWidth: headerMinWidth - 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                      >
+                        {player.name}
+                      </Typography>
+                    </Box>
+                  </TableCell>
                 );
               })}
-            </tr>
-          </thead>
-          <tbody>
+            </TableRow>
+          </TableHead>
+
+          <TableBody>
             {/* Total row */}
-            <tr aria-label="Total scores">
-              <th
+            <TableRow aria-label="Total scores">
+              <TableCell
+                component="th"
                 scope="row"
-                className={`${cellPadding} py-3 text-start font-bold text-gray-200 sticky start-0 bg-gray-800 z-10 border-b-2 border-gray-700`}
+                sx={{
+                  position: 'sticky',
+                  left: 0,
+                  zIndex: 1,
+                  bgcolor: 'background.paper',
+                  fontWeight: 700,
+                  fontSize: '0.8rem',
+                  borderRight: '1px solid',
+                  ...totalCellSx('__total__'),
+                  px: { xs: 1, sm: 2 },
+                }}
               >
                 {t.total}
-              </th>
+              </TableCell>
               {game.players.map(player => (
-                <td
+                <TableCell
                   key={player.id}
-                  className={`${cellPadding} py-3 text-center text-lg ${totalCellClass(player.id)} ${colClass(player.id)}`}
+                  align="center"
                   aria-label={`${player.name} total: ${playerTotals[player.id]}`}
+                  sx={{
+                    fontSize: '1rem',
+                    fontWeight: 700,
+                    px: { xs: 0.5, sm: 1.5 },
+                    ...totalCellSx(player.id),
+                    ...playerHeadSx(player.id),
+                  }}
                 >
                   {playerTotals[player.id]}
-                </td>
+                </TableCell>
               ))}
-            </tr>
+            </TableRow>
 
-            {/* Current (editable) round row — hidden when game is over */}
+            {/* Current (editable) round row */}
             {!gameOver && (
-              <tr className="bg-indigo-950/30 border-b border-gray-700" aria-label={`Round ${nextRound} — enter scores`}>
-                <th scope="row" className={`${cellPadding} py-2.5 text-start text-indigo-300 font-semibold text-xs sticky start-0 bg-indigo-950/50 z-10 whitespace-nowrap`}>
+              <TableRow
+                aria-label={`${t.round} ${nextRound} — ${t.now}`}
+                sx={{ bgcolor: 'rgba(124,77,255,0.07)' }}
+              >
+                <TableCell
+                  component="th"
+                  scope="row"
+                  sx={{
+                    position: 'sticky',
+                    left: 0,
+                    zIndex: 1,
+                    bgcolor: 'rgba(124,77,255,0.12)',
+                    color: 'primary.light',
+                    fontWeight: 700,
+                    fontSize: '0.75rem',
+                    borderRight: '1px solid',
+                    borderColor: 'divider',
+                    whiteSpace: 'nowrap',
+                    px: { xs: 1, sm: 2 },
+                    py: 1,
+                  }}
+                >
                   R{nextRound}
-                  <span className="ms-1 text-indigo-400/60 font-normal text-[10px] hidden sm:inline">{t.now}</span>
-                </th>
+                </TableCell>
                 {game.players.map((player, idx) => (
-                  <td key={player.id} className={`${cellPadding} py-1.5 sm:py-2`}>
-                    <input
-                      ref={idx === 0 ? firstInputRef : undefined}
+                  <TableCell key={player.id} align="center" sx={{ px: { xs: 0.25, sm: 1 }, py: 0.75 }}>
+                    <TextField
                       type="number"
                       value={currentScores[player.id] ?? ''}
                       onChange={e => setCurrentScores(prev => ({ ...prev, [player.id]: e.target.value }))}
-                      onKeyDown={e => handleInputKeyDown(e, idx)}
                       placeholder="0"
-                      aria-label={`${player.name} score for round ${nextRound}`}
-                      inputMode="numeric"
-                      className={inputClass}
+                      aria-label={`${player.name} ${t.round} ${nextRound}`}
+                      slotProps={{
+                        htmlInput: {
+                          ref: idx === 0 ? firstInputRef : undefined,
+                          inputMode: 'numeric' as const,
+                          style: { textAlign: 'center', padding: '4px 2px' },
+                          onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => handleInputKeyDown(e, idx),
+                        },
+                      }}
+                      variant="outlined"
+                      size="small"
+                      sx={{
+                        width: '100%',
+                        '& .MuiOutlinedInput-root': { borderRadius: 1.5 },
+                      }}
                     />
-                  </td>
+                  </TableCell>
                 ))}
-              </tr>
+              </TableRow>
             )}
 
-            {/* Past rounds (newest first) */}
+            {/* Past rounds */}
             {pastRoundIndices.map(roundIdx => {
               const roundNumber = roundIdx + 1;
               return (
-                <tr
+                <TableRow
                   key={roundIdx}
-                  className="border-b border-gray-700/50 hover:bg-gray-800/40 transition-colors"
-                  aria-label={`Round ${roundNumber}`}
+                  aria-label={`${t.round} ${roundNumber}`}
+                  sx={{ '&:hover': { bgcolor: 'rgba(255,255,255,0.03)' } }}
                 >
-                  <th scope="row" className={`${cellPadding} py-2.5 text-start text-gray-500 font-medium text-xs sticky start-0 bg-gray-900 z-10`}>
+                  <TableCell
+                    component="th"
+                    scope="row"
+                    sx={{
+                      position: 'sticky',
+                      left: 0,
+                      zIndex: 1,
+                      bgcolor: 'background.default',
+                      color: 'text.disabled',
+                      fontWeight: 500,
+                      fontSize: '0.72rem',
+                      borderRight: '1px solid',
+                      borderColor: 'divider',
+                      px: { xs: 1, sm: 2 },
+                      py: 1,
+                    }}
+                  >
                     R{roundNumber}
-                  </th>
+                  </TableCell>
                   {game.players.map(player => (
-                    <td key={player.id} className={`${cellPadding} py-2.5 text-center text-gray-300`}>
+                    <TableCell
+                      key={player.id}
+                      align="center"
+                      sx={{ color: 'text.secondary', px: { xs: 0.5, sm: 1.5 }, py: 1, fontSize: '0.85rem' }}
+                    >
                       {player.scores[roundIdx] !== undefined ? player.scores[roundIdx] : (
-                        <span className="text-gray-600" aria-hidden="true">—</span>
+                        <Box component="span" sx={{ color: 'text.disabled' }} aria-hidden="true">—</Box>
                       )}
-                    </td>
+                    </TableCell>
                   ))}
-                </tr>
+                </TableRow>
               );
             })}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       {/* Action row */}
-      <div className="flex gap-3 mt-3">
-        <button
+      <Stack direction="row" spacing={1.5}>
+        <Button
           type="submit"
           disabled={gameOver}
-          className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
-          aria-label={`Add round ${nextRound}`}
+          variant="contained"
+          size="large"
+          startIcon={<AddIcon />}
+          fullWidth
+          aria-label={`${t.round} ${nextRound}`}
         >
-          + {t.round}
-        </button>
-        <button
-          type="button"
-          onClick={() => onDeleteLastRound(game.id)}
-          disabled={roundCount === 0}
-          className="px-4 py-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-400 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
-          aria-label={`Undo round ${roundCount}`}
-          title={`Undo round ${roundCount}`}
-        >
-          {highContrast ? `− ${t.round}` : (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
-            </svg>
-          )}
-        </button>
-      </div>
-    </form>
+          {t.round}
+        </Button>
+        <Tooltip title={`${t.round} ${roundCount}`}>
+          <span>
+            <IconButton
+              type="button"
+              onClick={() => onDeleteLastRound(game.id)}
+              disabled={roundCount === 0}
+              aria-label={`Undo ${t.round} ${roundCount}`}
+              size="large"
+              sx={{
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 3,
+                color: 'text.disabled',
+                '&:not(:disabled):hover': { color: 'error.main', borderColor: 'error.main' },
+              }}
+            >
+              <UndoIcon />
+            </IconButton>
+          </span>
+        </Tooltip>
+      </Stack>
+    </Box>
   );
 }
+

@@ -4,7 +4,19 @@ import { ScoreTable } from './ScoreTable';
 import { GameEditor } from './GameEditor';
 import { Confetti } from './Confetti';
 import { useLanguage } from '../i18n/index';
-import { useHighContrast } from '../hooks/useHighContrast';
+
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+import Tooltip from '@mui/material/Tooltip';
+
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import EditIcon from '@mui/icons-material/Edit';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 
 interface GameDetailProps {
   game: Game;
@@ -31,7 +43,6 @@ export function GameDetail({
   onUpdateGame,
 }: GameDetailProps) {
   const { t } = useLanguage();
-  const { highContrast } = useHighContrast();
   const [confirmReset, setConfirmReset] = useState(false);
   const [isEditingSettings, setIsEditingSettings] = useState(false);
 
@@ -65,89 +76,95 @@ export function GameDetail({
   const modeLabel = game.mode === 'highest' ? t.highestWins : t.lowestWins;
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <Box sx={{ minHeight: '100dvh', bgcolor: 'background.default', display: 'flex', flexDirection: 'column' }}>
       {gameOver && <Confetti />}
 
-      {/* Sticky header */}
-      <header className="sticky top-0 z-20 bg-gray-900/95 backdrop-blur border-b border-gray-800 px-4 py-3 flex items-center gap-3">
-        <button
-          onClick={onBack}
-          className="p-2 text-gray-400 hover:text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 shrink-0"
-          aria-label="Back to game list"
-        >
-          {highContrast ? '←' : (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          )}
-        </button>
-
-        <div className="flex-1 min-w-0">
-          <h1 className="text-lg font-bold text-white truncate">{game.name}</h1>
-          <p className="text-xs text-gray-400">
-            {t.playersSuffix(game.players.length)} · {modeLabel} · {t.threshold} {game.threshold}
-          </p>
-        </div>
-
-        {/* Edit settings button */}
-        <button
-          onClick={() => { setConfirmReset(false); setIsEditingSettings(true); }}
-          className="p-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-400 hover:text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 shrink-0"
-          aria-label={t.editSettings}
-          title={t.editSettings}
-        >
-          {highContrast ? t.editSettings : (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-1.414.586H8v-2.414a2 2 0 01.586-1.414z" />
-            </svg>
-          )}
-        </button>
-
-        {/* Reset button */}
-        {confirmReset ? (
-          <div className="flex items-center gap-2 shrink-0" role="alertdialog" aria-label="Confirm reset">
-            <span className="text-sm text-gray-400 hidden sm:block">{t.resetAllScoresQuestion}</span>
-            <button
-              onClick={handleReset}
-              className="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white text-sm font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
-              aria-label="Confirm reset all scores"
-              autoFocus
-            >
-              {t.yesReset}
-            </button>
-            <button
-              onClick={() => setConfirmReset(false)}
-              className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500"
-              aria-label="Cancel reset"
-            >
-              {t.cancelReset}
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => setConfirmReset(true)}
-            disabled={roundCount === 0}
-            className="p-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-400 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 shrink-0"
-            aria-label={t.reset}
-            title={t.reset}
+      {/* Sticky AppBar */}
+      <AppBar position="sticky">
+        <Toolbar>
+          <IconButton
+            edge="start"
+            onClick={onBack}
+            aria-label={t.backToGameList}
+            color="inherit"
+            size="large"
           >
-            {highContrast ? t.reset : (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            )}
-          </button>
-        )}
-      </header>
+            <ArrowBackIcon sx={{ transform: 'var(--rtl-flip, none)' }} />
+          </IconButton>
+
+          <Box sx={{ flex: 1, minWidth: 0, ml: 1 }}>
+            <Typography variant="h6" component="h1" noWrap sx={{ fontWeight: 700 }}>
+              {game.name}
+            </Typography>
+            <Typography variant="caption" color="text.secondary" noWrap component="p">
+              {t.playersSuffix(game.players.length)} · {modeLabel} · {t.threshold} {game.threshold}
+            </Typography>
+          </Box>
+
+          {/* Edit settings */}
+          <Tooltip title={t.editSettings}>
+            <IconButton
+              onClick={() => { setConfirmReset(false); setIsEditingSettings(true); }}
+              aria-label={t.editSettings}
+              color="inherit"
+              size="large"
+            >
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+
+          {/* Reset */}
+          {confirmReset ? (
+            <Stack direction="row" spacing={0.5} sx={{ ml: 1 }} role="alertdialog" aria-label={t.resetAllScoresQuestion}>
+              <Button
+                size="small"
+                variant="contained"
+                color="error"
+                onClick={handleReset}
+                aria-label={t.yesReset}
+                autoFocus
+                sx={{ px: 1.5 }}
+              >
+                {t.yesReset}
+              </Button>
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={() => setConfirmReset(false)}
+                aria-label={t.cancelReset}
+                sx={{ px: 1.5 }}
+              >
+                {t.cancelReset}
+              </Button>
+            </Stack>
+          ) : (
+            <Tooltip title={t.reset}>
+              <span>
+                <IconButton
+                  onClick={() => setConfirmReset(true)}
+                  disabled={roundCount === 0}
+                  aria-label={t.reset}
+                  color="inherit"
+                  size="large"
+                  sx={{ '&:not(:disabled):hover': { color: 'error.main' } }}
+                >
+                  <RestartAltIcon />
+                </IconButton>
+              </span>
+            </Tooltip>
+          )}
+        </Toolbar>
+      </AppBar>
 
       {/* Main content */}
-      <main className="p-4 sm:p-6 max-w-5xl mx-auto">
+      <Box component="main" sx={{ flex: 1, p: { xs: 1.5, sm: 3 }, maxWidth: 900, width: '100%', mx: 'auto' }}>
         <ScoreTable
           game={game}
           onAddRound={onAddRound}
           onDeleteLastRound={onDeleteLastRound}
         />
-      </main>
-    </div>
+      </Box>
+    </Box>
   );
 }
+

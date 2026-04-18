@@ -2,6 +2,32 @@ import { useState } from 'react';
 import type { Game } from '../types';
 import { useLanguage } from '../i18n/index';
 
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import Fab from '@mui/material/Fab';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import IconButton from '@mui/material/IconButton';
+import Chip from '@mui/material/Chip';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+import Divider from '@mui/material/Divider';
+import Tooltip from '@mui/material/Tooltip';
+import Paper from '@mui/material/Paper';
+
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import LanguageIcon from '@mui/icons-material/Language';
+import ContrastIcon from '@mui/icons-material/Contrast';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import SportsMartialArtsIcon from '@mui/icons-material/SportsMartialArts';
+
 interface GameListProps {
   games: Game[];
   onSelectGame: (game: Game) => void;
@@ -29,8 +55,10 @@ function getLeader(game: Game): { name: string; gender: 'male' | 'female' } | nu
 
 export function GameList({ games, onSelectGame, onNewGame, onDeleteGame, highContrast, onToggleHighContrast }: GameListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [showLangMenu, setShowLangMenu] = useState(false);
+  const [langAnchor, setLangAnchor] = useState<null | HTMLElement>(null);
   const { t, language, setLanguage, availableLanguages, languageNames, getGenderedT } = useLanguage();
+
+  const sortedGames = [...games].sort((a, b) => b.createdAt - a.createdAt);
 
   function handleDeleteClick(e: React.MouseEvent, id: string) {
     e.stopPropagation();
@@ -48,173 +76,227 @@ export function GameList({ games, onSelectGame, onNewGame, onDeleteGame, highCon
     setDeletingId(null);
   }
 
-  const sortedGames = [...games].sort((a, b) => b.createdAt - a.createdAt);
-
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4 sm:p-8">
-      <div className="max-w-2xl mx-auto">
-        <header className="mb-8">
-          <div className="flex items-start justify-between gap-2 mb-1">
-            <h1 className="text-4xl font-bold text-white">🎲 {t.appTitle}</h1>
-            {/* Accessibility and language controls */}
-            <div className="flex items-center gap-2 mt-1 shrink-0 relative">
-              {/* High contrast toggle */}
-              <button
-                onClick={onToggleHighContrast}
-                className={`px-2 py-1.5 rounded-lg text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 border ${
-                  highContrast
-                    ? 'bg-yellow-400 text-black border-yellow-400 hover:bg-yellow-300'
-                    : 'bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700'
-                }`}
-                aria-pressed={highContrast}
-                aria-label={t.highContrast}
-                title={t.highContrast}
-                data-testid="high-contrast-toggle"
-              >
-                ◑
-              </button>
+    <Box sx={{ minHeight: '100dvh', bgcolor: 'background.default', display: 'flex', flexDirection: 'column' }}>
+      {/* Top App Bar */}
+      <AppBar position="sticky">
+        <Toolbar>
+          <EmojiEventsIcon sx={{ mr: 1, color: 'primary.light' }} aria-hidden="true" />
+          <Typography variant="h6" component="h1" sx={{ flexGrow: 1 }}>
+            {t.appTitle}
+          </Typography>
 
-              {/* Language selector */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowLangMenu(v => !v)}
-                  className="px-2 py-1.5 rounded-lg text-xs font-medium bg-gray-800 text-gray-300 border border-gray-700 hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  aria-label={t.language}
-                  aria-haspopup="listbox"
-                  aria-expanded={showLangMenu}
-                  title={t.language}
-                  data-testid="language-selector"
-                >
-                  🌐 {languageNames[language]}
-                </button>
-                {showLangMenu && (
-                  <ul
-                    role="listbox"
-                    aria-label={t.language}
-                    className="absolute end-0 top-full mt-1 z-50 bg-gray-800 border border-gray-600 rounded-lg shadow-xl py-1 min-w-[140px]"
-                  >
-                    {availableLanguages.map(lang => (
-                      <li key={lang} role="option" aria-selected={lang === language}>
-                        <button
-                          onClick={() => { setLanguage(lang); setShowLangMenu(false); }}
-                          className={`w-full text-start px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 ${
-                            lang === language
-                              ? 'bg-indigo-600 text-white font-medium'
-                              : 'text-gray-200 hover:bg-gray-700'
-                          }`}
-                          data-testid={`lang-option-${lang}`}
-                        >
-                          {languageNames[lang]}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
-          </div>
-          <p className="text-gray-400">{t.appSubtitle}</p>
-        </header>
+          {/* High contrast toggle */}
+          <Tooltip title={t.highContrast}>
+            <IconButton
+              onClick={onToggleHighContrast}
+              aria-pressed={highContrast}
+              aria-label={t.highContrast}
+              data-testid="high-contrast-toggle"
+              color={highContrast ? 'secondary' : 'inherit'}
+              size="large"
+            >
+              <ContrastIcon />
+            </IconButton>
+          </Tooltip>
 
-        {/* New Game button */}
-        <div className="mb-6">
-          <button
-            onClick={onNewGame}
-            className="w-full sm:w-auto px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
-            aria-label="Create a new game"
+          {/* Language selector */}
+          <Tooltip title={t.language}>
+            <IconButton
+              onClick={e => setLangAnchor(e.currentTarget)}
+              aria-label={t.language}
+              aria-haspopup="listbox"
+              aria-expanded={Boolean(langAnchor)}
+              data-testid="language-selector"
+              color="inherit"
+              size="large"
+            >
+              <LanguageIcon />
+            </IconButton>
+          </Tooltip>
+          <Menu
+            anchorEl={langAnchor}
+            open={Boolean(langAnchor)}
+            onClose={() => setLangAnchor(null)}
+            slotProps={{ list: { role: 'listbox', 'aria-label': t.language } as React.HTMLAttributes<HTMLUListElement> }}
+            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
           >
-            {t.newGame}
-          </button>
-        </div>
+            {availableLanguages.map(lang => (
+              <MenuItem
+                key={lang}
+                role="option"
+                aria-selected={lang === language}
+                selected={lang === language}
+                data-testid={`lang-option-${lang}`}
+                onClick={() => { setLanguage(lang); setLangAnchor(null); }}
+              >
+                {languageNames[lang]}
+              </MenuItem>
+            ))}
+          </Menu>
+        </Toolbar>
+      </AppBar>
 
-        {/* Game List */}
+      {/* Content */}
+      <Box component="main" sx={{ flex: 1, px: 2, pt: 2, pb: 10, maxWidth: 600, width: '100%', mx: 'auto' }}>
+        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 2 }}>
+          {t.appSubtitle}
+        </Typography>
+
         {sortedGames.length === 0 ? (
-          <div className="text-center py-16 text-gray-500">
-            <p className="text-5xl mb-4" aria-hidden="true">🎯</p>
-            <p className="text-xl font-medium mb-2 text-gray-300">{t.noGamesTitle}</p>
-            <p>{t.noGamesHint}</p>
-          </div>
+          <Box
+            sx={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              justifyContent: 'center', py: 8, gap: 1,
+            }}
+          >
+            <SportsMartialArtsIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 1 }} aria-hidden="true" />
+            <Typography variant="h6" color="text.secondary">{t.noGamesTitle}</Typography>
+            <Typography variant="body2" color="text.disabled">{t.noGamesHint}</Typography>
+          </Box>
         ) : (
-          <ul className="space-y-3" role="list" aria-label="Saved games">
-            {sortedGames.map(game => {
+          <List role="list" aria-label="Saved games" disablePadding>
+            {sortedGames.map((game, index) => {
               const roundCount = game.players[0]?.scores.length ?? 0;
               const gameLeader = getLeader(game);
               const modeLabel = game.mode === 'highest' ? t.highestWins : t.lowestWins;
               const leaderLabel = gameLeader ? getGenderedT(gameLeader.gender).leader : null;
-              return (
-                <li key={game.id}>
-                  <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 hover:border-indigo-500 rounded-xl p-3 transition-colors">
-                    {/* Game info button */}
-                    <button
-                      className="flex-1 text-start focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg p-1"
-                      onClick={() => onSelectGame(game)}
-                      aria-label={`Open game: ${game.name}`}
-                    >
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-base font-semibold text-white">{game.name}</span>
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-gray-700 text-gray-300">
-                          {modeLabel}
-                        </span>
-                      </div>
-                      <div className="mt-1 flex items-center gap-3 text-sm text-gray-400 flex-wrap">
-                        <span>{t.playersSuffix(game.players.length)}</span>
-                        {game.players.length > 0 && (
-                          <>
-                            <span aria-hidden="true">·</span>
-                            <span>{roundCount} {roundCount === 1 ? t.roundSingular : t.roundPlural}</span>
-                            {gameLeader && (
-                              <>
-                                <span aria-hidden="true">·</span>
-                                <span>{leaderLabel}: <span className="text-indigo-400 font-medium">{gameLeader.name}</span></span>
-                              </>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </button>
 
-                    {/* Delete controls */}
-                    <div className="flex items-center gap-2 shrink-0" onClick={e => e.stopPropagation()}>
-                      {deletingId === game.id ? (
-                        <>
-                          <span className="text-sm text-gray-400 hidden sm:block">{t.deleteConfirm}</span>
-                          <button
-                            onClick={e => handleDeleteConfirm(e, game.id)}
-                            className="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white text-sm font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
-                            aria-label={`Confirm delete ${game.name}`}
-                            autoFocus
-                          >
-                            {t.yes}
-                          </button>
-                          <button
-                            onClick={handleDeleteCancel}
-                            className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500"
-                            aria-label="Cancel delete"
-                          >
-                            {t.no}
-                          </button>
-                        </>
-                      ) : (
-                        <button
-                          onClick={e => handleDeleteClick(e, game.id)}
-                          className="p-2 text-gray-500 hover:text-red-400 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
-                          aria-label={`Delete game: ${game.name}`}
-                        >
-                          {highContrast ? '×' : (
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                              <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                            </svg>
-                          )}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </li>
+              return (
+                <ListItem
+                  key={game.id}
+                  role="listitem"
+                  disablePadding
+                  sx={{ display: 'block', mb: 1 }}
+                >
+                  {index > 0 && <Divider sx={{ display: 'none' }} />}
+                  <Paper
+                    variant="outlined"
+                    sx={{
+                      borderRadius: 3,
+                      overflow: 'hidden',
+                      '&:hover': { borderColor: 'primary.dark' },
+                      transition: 'border-color 0.2s',
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'stretch' }}>
+                      {/* Main tap area */}
+                      <ListItemButton
+                        onClick={() => onSelectGame(game)}
+                        aria-label={`${t.appTitle}: ${game.name}`}
+                        sx={{ flex: 1, py: 1.5, borderRadius: 0 }}
+                      >
+                        <ListItemText
+                          primary={
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                              <Typography variant="subtitle1" sx={{ fontWeight: 700 }} component="span">
+                                {game.name}
+                              </Typography>
+                              <Chip label={modeLabel} size="small" variant="outlined" sx={{ fontSize: '0.7rem' }} />
+                            </Box>
+                          }
+                          secondary={
+                            <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', mt: 0.25 }}>
+                              <Typography variant="caption" color="text.secondary" component="span">
+                                {t.playersSuffix(game.players.length)}
+                              </Typography>
+                              {game.players.length > 0 && (
+                                <>
+                                  <Typography variant="caption" color="text.disabled" component="span" aria-hidden="true">·</Typography>
+                                  <Typography variant="caption" color="text.secondary" component="span">
+                                    {roundCount} {roundCount === 1 ? t.roundSingular : t.roundPlural}
+                                  </Typography>
+                                  {gameLeader && (
+                                    <>
+                                      <Typography variant="caption" color="text.disabled" component="span" aria-hidden="true">·</Typography>
+                                      <Typography variant="caption" component="span">
+                                        {leaderLabel}:{' '}
+                                        <Box component="span" sx={{ color: 'primary.light', fontWeight: 700 }}>
+                                          {gameLeader.name}
+                                        </Box>
+                                      </Typography>
+                                    </>
+                                  )}
+                                </>
+                              )}
+                            </Box>
+                          }
+                        />
+                      </ListItemButton>
+
+                      {/* Delete controls */}
+                      <Box
+                        sx={{ display: 'flex', alignItems: 'center', pr: 1 }}
+                        onClick={e => e.stopPropagation()}
+                      >
+                        {deletingId === game.id ? (
+                          <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+                            <Button
+                              size="small"
+                              variant="contained"
+                              color="error"
+                              onClick={e => handleDeleteConfirm(e, game.id)}
+                              aria-label={`${t.yes} – ${game.name}`}
+                              autoFocus
+                              sx={{ minWidth: 0, px: 1.5, py: 0.75 }}
+                            >
+                              {t.yes}
+                            </Button>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              onClick={handleDeleteCancel}
+                              aria-label={t.no}
+                              sx={{ minWidth: 0, px: 1.5, py: 0.75 }}
+                            >
+                              {t.no}
+                            </Button>
+                          </Stack>
+                        ) : (
+                          <Tooltip title={`${t.deleteConfirm} ${game.name}`}>
+                            <IconButton
+                              onClick={e => handleDeleteClick(e, game.id)}
+                              aria-label={`${t.deleteConfirm} ${game.name}`}
+                              size="medium"
+                              color="default"
+                              sx={{ color: 'text.disabled', '&:hover': { color: 'error.main' } }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                      </Box>
+                    </Box>
+                  </Paper>
+                </ListItem>
               );
             })}
-          </ul>
+          </List>
         )}
-      </div>
-    </div>
+      </Box>
+
+      {/* FAB – New Game */}
+      <Box
+        sx={{
+          position: 'fixed',
+          bottom: 24,
+          insetInlineEnd: 24,
+          zIndex: 1000,
+        }}
+      >
+        <Fab
+          onClick={onNewGame}
+          aria-label={t.newGame}
+          variant="extended"
+          color="primary"
+          size="large"
+        >
+          <AddIcon sx={{ mr: 1 }} />
+          {t.newGame}
+        </Fab>
+      </Box>
+    </Box>
   );
 }
+
