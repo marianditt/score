@@ -56,9 +56,7 @@ function App() {
   }
 
   function handleBack() {
-    // Update view immediately for responsive UX, then sync the browser history stack.
-    // If the browser pops state afterwards (popstate event), setView('list') is a no-op.
-    setView({ kind: 'list' });
+    // Let history.back() trigger the popstate listener, which will set the view.
     window.history.back();
   }
 
