@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { Game } from '../types';
 import { useLanguage } from '../i18n/index';
 
@@ -57,6 +57,9 @@ function getLeadersAndWinners(game: Game): { leaderIds: string[]; winnerIds: str
   }
 }
 
+// Minimum column width: 6 players fit on a ~390 px mobile (390 - 36 round col) / 6 ≈ 59 px → use 56 px
+const MIN_COL_WIDTH = 56;
+
 export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTableProps) {
   const { getGenderedT } = useLanguage();
   const roundCount = Math.max(0, ...game.players.map(p => p.scores.length));
@@ -70,6 +73,8 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
 
   const [currentScores, setCurrentScores] = useState<Record<string, string>>(initScores);
   const firstInputRef = useRef<HTMLInputElement>(null);
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollRight, setCanScrollRight] = useState(false);
   const playerIds = game.players.map(p => p.id).join(',');
 
   const [prevPlayerIds, setPrevPlayerIds] = useState(playerIds);
@@ -79,6 +84,24 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
     setPrevRoundCount(roundCount);
     setCurrentScores(initScores());
   }
+
+  const playerCount = game.players.length;
+
+  useEffect(() => {
+    const el = tableContainerRef.current;
+    if (!el) return;
+    function updateScroll() {
+      if (!el) return;
+      setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+    }
+    updateScroll();
+    el.addEventListener('scroll', updateScroll);
+    window.addEventListener('resize', updateScroll);
+    return () => {
+      el.removeEventListener('scroll', updateScroll);
+      window.removeEventListener('resize', updateScroll);
+    };
+  }, [playerCount]);
 
   const { leaderIds, winnerIds } = getLeadersAndWinners(game);
   const gameOver = winnerIds.length > 0;
@@ -116,10 +139,6 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
 
   if (game.players.length === 0) return null;
 
-  const playerCount = game.players.length;
-  // Compact header cell width to fit ≤6 players without horizontal scroll on mobile
-  const headerMinWidth = playerCount <= 3 ? 80 : playerCount <= 6 ? 52 : 72;
-
   // Winner / leader colours
   function playerHeadSx(playerId: string) {
     if (winnerIds.includes(playerId)) return { color: 'secondary.main', fontWeight: 800 };
@@ -142,126 +161,87 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
       aria-label={`Score tracking for ${game.name}`}
       sx={{ pb: 12 }}
     >
-      <TableContainer
-        component={Paper}
-        variant="outlined"
-        role="region"
-        aria-label="Score table"
-        sx={{ borderRadius: 3, mb: 1.5 }}
-      >
-        <Table size="small" sx={{ tableLayout: playerCount > 6 ? 'auto' : 'fixed', minWidth: playerCount > 6 ? 36 + playerCount * headerMinWidth : undefined }}>
-          <TableHead>
-            <TableRow>
-              {/* Round column – sticky */}
-              <TableCell
-                component="th"
-                scope="col"
-                sx={{
-                  width: 36,
-                  position: 'sticky',
-                  left: 0,
-                  zIndex: 2,
-                  bgcolor: 'background.paper',
-                  fontWeight: 700,
-                  color: 'text.secondary',
-                  fontSize: '0.75rem',
-                  borderRight: '1px solid',
-                  borderColor: 'divider',
-                  py: 1.5,
-                  px: { xs: 1, sm: 2 },
-                }}
-              >
-                {/* header label removed for compact display */}
-              </TableCell>
-              {game.players.map(player => {
-                const pt = getGenderedT(player.gender);
-                return (
-                  <TableCell
-                    key={player.id}
-                    component="th"
-                    scope="col"
-                    align="center"
-                    sx={{
-                      minWidth: headerMinWidth,
-                      py: 1,
-                      px: { xs: 0.5, sm: 1.5 },
-                      ...playerHeadSx(player.id),
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>
-                      <Box sx={{ height: 20, display: 'flex', alignItems: 'center' }}>
-                        {winnerIds.includes(player.id) && (
-                          <EmojiEventsIcon
-                            fontSize="small"
-                            sx={{ color: 'secondary.main' }}
-                            aria-label={pt.winner}
-                          />
-                        )}
-                        {leaderIds.includes(player.id) && (
-                          <StarIcon
-                            fontSize="small"
-                            sx={{ color: 'primary.light' }}
-                            aria-label={pt.currentLeader}
-                          />
-                        )}
-                      </Box>
-                      <Typography
-                        variant="caption"
-                        sx={{ fontWeight: 'inherit', display: 'block', maxWidth: headerMinWidth - 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                      >
-                        {player.name}
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                );
-              })}
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            {/* Total row */}
-            <TableRow aria-label="Total scores">
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{
-                  position: 'sticky',
-                  left: 0,
-                  zIndex: 1,
-                  bgcolor: 'background.paper',
-                  fontWeight: 700,
-                  fontSize: '0.8rem',
-                  borderRight: '1px solid',
-                  ...totalCellSx('__total__'),
-                  px: { xs: 1, sm: 2 },
-                }}
-              >
-                #
-              </TableCell>
-              {game.players.map(player => (
+      <Box sx={{ position: 'relative', mb: 1.5 }}>
+        <TableContainer
+          ref={tableContainerRef}
+          component={Paper}
+          variant="outlined"
+          role="region"
+          aria-label="Score table"
+          sx={{ borderRadius: 3, overflowX: 'auto' }}
+        >
+          <Table size="small" sx={{ tableLayout: 'fixed', width: '100%', minWidth: 36 + playerCount * MIN_COL_WIDTH }}>
+            <TableHead>
+              <TableRow>
+                {/* Round column – sticky */}
                 <TableCell
-                  key={player.id}
-                  align="center"
-                  aria-label={`${player.name} total: ${playerTotals[player.id]}`}
+                  component="th"
+                  scope="col"
                   sx={{
-                    fontSize: '1rem',
+                    width: 36,
+                    position: 'sticky',
+                    left: 0,
+                    zIndex: 2,
+                    bgcolor: 'background.paper',
                     fontWeight: 700,
-                    px: { xs: 0.5, sm: 1.5 },
-                    ...totalCellSx(player.id),
-                    ...playerHeadSx(player.id),
+                    color: 'text.secondary',
+                    fontSize: '0.75rem',
+                    borderRight: '1px solid',
+                    borderColor: 'divider',
+                    py: 1.5,
+                    px: { xs: 1, sm: 2 },
                   }}
                 >
-                  {playerTotals[player.id]}
+                  {/* header label removed for compact display */}
                 </TableCell>
-              ))}
-            </TableRow>
+                {game.players.map(player => {
+                  const pt = getGenderedT(player.gender);
+                  return (
+                    <TableCell
+                      key={player.id}
+                      component="th"
+                      scope="col"
+                      align="center"
+                      sx={{
+                        minWidth: MIN_COL_WIDTH,
+                        py: 1,
+                        px: { xs: 0.5, sm: 1.5 },
+                        ...playerHeadSx(player.id),
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>
+                        <Box sx={{ height: 20, display: 'flex', alignItems: 'center' }}>
+                          {winnerIds.includes(player.id) && (
+                            <EmojiEventsIcon
+                              fontSize="small"
+                              sx={{ color: 'secondary.main' }}
+                              aria-label={pt.winner}
+                            />
+                          )}
+                          {leaderIds.includes(player.id) && (
+                            <StarIcon
+                              fontSize="small"
+                              sx={{ color: 'primary.light' }}
+                              aria-label={pt.currentLeader}
+                            />
+                          )}
+                        </Box>
+                        <Typography
+                          variant="caption"
+                          sx={{ fontWeight: 'inherit', display: 'block', maxWidth: MIN_COL_WIDTH - 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                        >
+                          {player.name}
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            </TableHead>
 
-            {/* Current (editable) round row */}
-            {!gameOver && (
-              <TableRow
-                aria-label={`${t.round} ${nextRound} — ${t.now}`}
-                sx={{ bgcolor: 'rgba(124,77,255,0.07)' }}
-              >
+            <TableBody>
+              {/* Total row */}
+              <TableRow aria-label="Total scores">
                 <TableCell
                   component="th"
                   scope="row"
@@ -269,55 +249,39 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                     position: 'sticky',
                     left: 0,
                     zIndex: 1,
-                    bgcolor: 'rgba(124,77,255,0.12)',
-                    color: 'primary.light',
+                    bgcolor: 'background.paper',
                     fontWeight: 700,
-                    fontSize: '0.75rem',
+                    fontSize: '0.8rem',
                     borderRight: '1px solid',
-                    borderColor: 'divider',
-                    whiteSpace: 'nowrap',
+                    ...totalCellSx('__total__'),
                     px: { xs: 1, sm: 2 },
-                    py: 1,
                   }}
                 >
-                  R{nextRound}
+                  #
                 </TableCell>
-                {game.players.map((player, idx) => (
-                  <TableCell key={player.id} align="center" sx={{ px: { xs: 0.25, sm: 1 }, py: 0.75 }}>
-                    <TextField
-                      type="number"
-                      value={currentScores[player.id] ?? ''}
-                      onChange={e => setCurrentScores(prev => ({ ...prev, [player.id]: e.target.value }))}
-                      placeholder="0"
-                      aria-label={`${player.name} ${t.round} ${nextRound}`}
-                      slotProps={{
-                        htmlInput: {
-                          ref: idx === 0 ? firstInputRef : undefined,
-                          inputMode: 'numeric' as const,
-                          style: { textAlign: 'center', padding: '4px 2px' },
-                          onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => handleInputKeyDown(e, idx),
-                        },
-                      }}
-                      variant="outlined"
-                      size="small"
-                      sx={{
-                        width: '100%',
-                        '& .MuiOutlinedInput-root': { borderRadius: 1.5 },
-                      }}
-                    />
+                {game.players.map(player => (
+                  <TableCell
+                    key={player.id}
+                    align="center"
+                    aria-label={`${player.name} total: ${playerTotals[player.id]}`}
+                    sx={{
+                      fontSize: '1rem',
+                      fontWeight: 700,
+                      px: { xs: 0.5, sm: 1.5 },
+                      ...totalCellSx(player.id),
+                      ...playerHeadSx(player.id),
+                    }}
+                  >
+                    {playerTotals[player.id]}
                   </TableCell>
                 ))}
               </TableRow>
-            )}
 
-            {/* Past rounds */}
-            {pastRoundIndices.map(roundIdx => {
-              const roundNumber = roundIdx + 1;
-              return (
+              {/* Current (editable) round row */}
+              {!gameOver && (
                 <TableRow
-                  key={roundIdx}
-                  aria-label={`${t.round} ${roundNumber}`}
-                  sx={{ '&:hover': { bgcolor: 'rgba(255,255,255,0.03)' } }}
+                  aria-label={`${t.round} ${nextRound} — ${t.now}`}
+                  sx={{ bgcolor: 'rgba(124,77,255,0.07)' }}
                 >
                   <TableCell
                     component="th"
@@ -326,35 +290,110 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                       position: 'sticky',
                       left: 0,
                       zIndex: 1,
-                      bgcolor: 'background.default',
-                      color: 'text.disabled',
-                      fontWeight: 500,
-                      fontSize: '0.72rem',
+                      bgcolor: 'rgba(124,77,255,0.12)',
+                      color: 'primary.light',
+                      fontWeight: 700,
+                      fontSize: '0.75rem',
                       borderRight: '1px solid',
                       borderColor: 'divider',
+                      whiteSpace: 'nowrap',
                       px: { xs: 1, sm: 2 },
                       py: 1,
                     }}
                   >
-                    R{roundNumber}
+                    R{nextRound}
                   </TableCell>
-                  {game.players.map(player => (
-                    <TableCell
-                      key={player.id}
-                      align="center"
-                      sx={{ color: 'text.secondary', px: { xs: 0.5, sm: 1.5 }, py: 1, fontSize: '0.85rem' }}
-                    >
-                      {player.scores[roundIdx] != null ? player.scores[roundIdx] : (
-                        <Box component="span" sx={{ color: 'text.disabled' }} aria-hidden="true">—</Box>
-                      )}
+                  {game.players.map((player, idx) => (
+                    <TableCell key={player.id} align="center" sx={{ px: { xs: 0.25, sm: 1 }, py: 0.75 }}>
+                      <TextField
+                        type="number"
+                        value={currentScores[player.id] ?? ''}
+                        onChange={e => setCurrentScores(prev => ({ ...prev, [player.id]: e.target.value }))}
+                        placeholder="0"
+                        aria-label={`${player.name} ${t.round} ${nextRound}`}
+                        slotProps={{
+                          htmlInput: {
+                            ref: idx === 0 ? firstInputRef : undefined,
+                            inputMode: 'numeric' as const,
+                            style: { textAlign: 'center', padding: '4px 2px' },
+                            onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => handleInputKeyDown(e, idx),
+                          },
+                        }}
+                        variant="outlined"
+                        size="small"
+                        sx={{
+                          width: '100%',
+                          '& .MuiOutlinedInput-root': { borderRadius: 1.5 },
+                        }}
+                      />
                     </TableCell>
                   ))}
                 </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+              )}
+
+              {/* Past rounds */}
+              {pastRoundIndices.map(roundIdx => {
+                const roundNumber = roundIdx + 1;
+                return (
+                  <TableRow
+                    key={roundIdx}
+                    aria-label={`${t.round} ${roundNumber}`}
+                    sx={{ '&:hover': { bgcolor: 'rgba(255,255,255,0.03)' } }}
+                  >
+                    <TableCell
+                      component="th"
+                      scope="row"
+                      sx={{
+                        position: 'sticky',
+                        left: 0,
+                        zIndex: 1,
+                        bgcolor: 'background.default',
+                        color: 'text.disabled',
+                        fontWeight: 500,
+                        fontSize: '0.72rem',
+                        borderRight: '1px solid',
+                        borderColor: 'divider',
+                        px: { xs: 1, sm: 2 },
+                        py: 1,
+                      }}
+                    >
+                      R{roundNumber}
+                    </TableCell>
+                    {game.players.map(player => (
+                      <TableCell
+                        key={player.id}
+                        align="center"
+                        sx={{ color: 'text.secondary', px: { xs: 0.5, sm: 1.5 }, py: 1, fontSize: '0.85rem' }}
+                      >
+                        {player.scores[roundIdx] != null ? player.scores[roundIdx] : (
+                          <Box component="span" sx={{ color: 'text.disabled' }} aria-hidden="true">—</Box>
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        {/* Scroll-right indicator: fades in when there is hidden content to the right */}
+        {canScrollRight && (
+          <Box
+            aria-hidden="true"
+            sx={{
+              position: 'absolute',
+              right: 0,
+              top: 0,
+              bottom: 0,
+              width: 48,
+              borderRadius: '0 12px 12px 0',
+              background: theme => `linear-gradient(to right, transparent, ${theme.palette.background.paper})`,
+              pointerEvents: 'none',
+            }}
+          />
+        )}
+      </Box>
 
       {/* Fixed action buttons – FAB at bottom-end (consistent with home page) */}
       <Box
@@ -384,7 +423,6 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
                 bgcolor: 'background.paper',
                 color: 'text.primary',
                 '&.Mui-disabled': { color: 'action.disabled' },
-                '&:not(.Mui-disabled):hover': { color: 'error.main', borderColor: 'error.main' },
               }}
             >
               <UndoIcon />
@@ -406,4 +444,3 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
     </Box>
   );
 }
-
