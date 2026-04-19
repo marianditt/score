@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import type { Game } from '../types';
 import { ScoreTable } from './ScoreTable';
 import { GameEditor } from './GameEditor';
@@ -75,32 +75,6 @@ export function GameDetail({
   });
 
   const gameOver = isGameOver(game);
-  const roundCount = game.players.length > 0
-    ? Math.max(0, ...game.players.map(p => p.scores.length))
-    : 0;
-
-  // Track previous finishedAt to detect undo-after-finish
-  const prevFinishedAt = useRef(game.finishedAt);
-
-  // Resume timer on mount; pause on unmount
-  useEffect(() => {
-    if (!game.finishedAt) {
-      onResumeTimer(game.id);
-    }
-    return () => {
-      onPauseTimer(game.id);
-    };
-  // Only run on mount/unmount: onPauseTimer/onResumeTimer are stable useCallback refs
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [game.id, onPauseTimer, onResumeTimer]);
-
-  // Resume timer when undo clears finishedAt
-  useEffect(() => {
-    if (prevFinishedAt.current !== undefined && game.finishedAt === undefined) {
-      onResumeTimer(game.id);
-    }
-    prevFinishedAt.current = game.finishedAt;
-  }, [game.finishedAt, game.id, onResumeTimer]);
 
   // Tick every second while the timer is running so the displayed time stays current
   useEffect(() => {
@@ -254,17 +228,14 @@ export function GameDetail({
               </Stack>
             ) : (
               <Tooltip title={t.reset}>
-                <span>
-                  <IconButton
-                    onClick={() => setConfirmReset(true)}
-                    disabled={roundCount === 0}
-                    aria-label={t.reset}
-                    color="inherit"
-                    size="large"
-                  >
-                    <RestartAltIcon />
-                  </IconButton>
-                </span>
+                <IconButton
+                  onClick={() => setConfirmReset(true)}
+                  aria-label={t.reset}
+                  color="inherit"
+                  size="large"
+                >
+                  <RestartAltIcon />
+                </IconButton>
               </Tooltip>
             )}
           </Box>

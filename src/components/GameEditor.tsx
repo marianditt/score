@@ -55,7 +55,7 @@ export function GameEditor({ game, onSave, onCancel }: GameEditorProps) {
     e?.preventDefault();
     const name = newPlayerName.trim();
     if (!name) return;
-    setPlayers(prev => [...prev, { id: generateId(), name, gender: 'male', scores: [] }]);
+    setPlayers(prev => [...prev, { id: generateId(), name, gender: 'female', scores: [] }]);
     setNewPlayerName('');
     playerInputRef.current?.focus();
   }

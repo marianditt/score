@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Game } from '../types';
 import { useLanguage } from '../i18n/index';
 
@@ -37,22 +37,68 @@ function getTotal(scores: (number | null)[]): number {
   return scores.reduce((a: number, b) => a + (b ?? 0), 0);
 }
 
-function getLeader(game: Game): { name: string; gender: 'male' | 'female' } | null {
-  if (game.players.length <= 1) return null;
+function isGameOver(game: Game): boolean {
+  if (game.finishedAt) return true;
+  if (game.threshold === null || game.players.length === 0) return false;
+  const totals = game.players.map(p => getTotal(p.scores));
+  if (game.mode === 'highest') return Math.max(...totals) >= game.threshold;
+  return totals.some(t => t >= (game.threshold as number));
+}
+
+function getPersonToShow(game: Game): { type: 'leader' | 'winner'; name: string; gender: 'male' | 'female' } | null {
+  if (game.players.length === 0) return null;
   const allZero = game.players.every(p => p.scores.length === 0 || getTotal(p.scores) === 0);
   if (allZero) return null;
+
   const sorted = [...game.players].sort((a, b) => {
     const ta = getTotal(a.scores);
     const tb = getTotal(b.scores);
     return game.mode === 'highest' ? tb - ta : ta - tb;
   });
-  return { name: sorted[0].name, gender: sorted[0].gender };
+  const best = sorted[0];
+
+  if (isGameOver(game)) {
+    return { type: 'winner', name: best.name, gender: best.gender };
+  }
+
+  // Not finished: show leader only for multi-player
+  if (game.players.length <= 1) return null;
+  return { type: 'leader', name: best.name, gender: best.gender };
+}
+
+function formatDuration(ms: number): string {
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  const mm = String(minutes).padStart(2, '0');
+  const ss = String(seconds).padStart(2, '0');
+  if (hours > 0) return `${hours}:${mm}:${ss}`;
+  return `${mm}:${ss}`;
+}
+
+function getDisplayDuration(game: Game, nowMs: number): number | null {
+  if (game.finishedAt) return game.duration ?? 0;
+  if (game.timerStartedAt) {
+    const elapsed = nowMs > game.timerStartedAt ? nowMs - game.timerStartedAt : 0;
+    return (game.duration ?? 0) + elapsed;
+  }
+  return null; // paused – don't show
 }
 
 export function GameList({ games, onSelectGame, onNewGame, onDeleteGame }: GameListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [langAnchor, setLangAnchor] = useState<null | HTMLElement>(null);
+  const [nowMs, setNowMs] = useState(0);
   const { t, language, setLanguage, availableLanguages, languageNames, getGenderedT } = useLanguage();
+
+  const hasRunningGames = games.some(g => !!g.timerStartedAt && !g.finishedAt);
+
+  useEffect(() => {
+    if (!hasRunningGames) return;
+    const id = setInterval(() => setNowMs(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [hasRunningGames]);
 
   const sortedGames = [...games].sort((a, b) => b.createdAt - a.createdAt);
 
@@ -141,9 +187,13 @@ export function GameList({ games, onSelectGame, onNewGame, onDeleteGame }: GameL
           <List role="list" aria-label="Saved games" disablePadding>
             {sortedGames.map((game) => {
               const roundCount = game.players[0]?.scores.length ?? 0;
-              const gameLeader = getLeader(game);
+              const person = getPersonToShow(game);
               const modeLabel = game.mode === 'highest' ? t.highestWins : t.lowestWins;
-              const leaderLabel = gameLeader ? getGenderedT(gameLeader.gender).leader : null;
+              const isPaused = !game.finishedAt && !game.timerStartedAt;
+              const durationMs = getDisplayDuration(game, nowMs);
+              const personLabel = person
+                ? (person.type === 'winner' ? getGenderedT(person.gender).winner : getGenderedT(person.gender).leader)
+                : null;
 
               return (
                 <ListItem
@@ -175,6 +225,9 @@ export function GameList({ games, onSelectGame, onNewGame, onDeleteGame }: GameL
                                 {game.name}
                               </Typography>
                               <Chip label={modeLabel} size="small" variant="outlined" sx={{ fontSize: '0.7rem' }} />
+                              {isPaused && (
+                                <Chip label={t.paused} size="small" variant="outlined" color="warning" sx={{ fontSize: '0.7rem' }} />
+                              )}
                             </Box>
                           }
                           secondary={
@@ -188,13 +241,21 @@ export function GameList({ games, onSelectGame, onNewGame, onDeleteGame }: GameL
                                   <Typography variant="caption" color="text.secondary" component="span">
                                     {roundCount} {roundCount === 1 ? t.roundSingular : t.roundPlural}
                                   </Typography>
-                                  {gameLeader && (
+                                  {durationMs !== null && (
+                                    <>
+                                      <Typography variant="caption" color="text.disabled" component="span" aria-hidden="true">·</Typography>
+                                      <Typography variant="caption" color="text.secondary" component="span">
+                                        {formatDuration(durationMs)}
+                                      </Typography>
+                                    </>
+                                  )}
+                                  {person && personLabel && (
                                     <>
                                       <Typography variant="caption" color="text.disabled" component="span" aria-hidden="true">·</Typography>
                                       <Typography variant="caption" component="span">
-                                        {leaderLabel}:{' '}
+                                        {personLabel}:{' '}
                                         <Box component="span" sx={{ color: 'primary.light', fontWeight: 700 }}>
-                                          {gameLeader.name}
+                                          {person.name}
                                         </Box>
                                       </Typography>
                                     </>
