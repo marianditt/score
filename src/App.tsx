@@ -55,6 +55,7 @@ function App() {
 
   function handleSelectGame(game: Game) {
     window.history.pushState(null, '');
+    resumeGameTimer(game.id);
     setView({ kind: 'game', gameId: game.id });
   }
 
