@@ -72,6 +72,11 @@ export function GameDetail({
   const flashTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Capture whether the timer was already running at mount time (e.g. auto-resumed on navigation)
   const mountTimerRunning = useRef(!!game.timerStartedAt);
+  // Tracks whether the next timerRunning change was triggered by the user (handleTimerToggle),
+  // so the external-change effect can skip it and avoid a double-flash.
+  const ignoreNextTimerEffectRef = useRef(false);
+  // Tracks whether the timerRunning effect has already run once (the initial mount run is skipped).
+  const isMountedTimerRef = useRef(false);
 
   // Tick triggers a re-render every second while the timer is running, so the displayed time stays fresh.
   // The snapshot stores the (now, startedAt) pair captured at each tick to avoid calling Date.now() during render.
@@ -82,6 +87,7 @@ export function GameDetail({
 
   const gameOver = isGameOver(game);
   const roundCount = Math.max(0, ...game.players.map(p => p.scores.length));
+  const timerRunning = !!game.timerStartedAt;
 
   // Tick every second while the timer is running so the displayed time stays current
   useEffect(() => {
@@ -110,6 +116,26 @@ export function GameDetail({
     return () => clearTimeout(id);
   }, []);
 
+  // Show a flash whenever the timer switches state due to an external change (e.g. undo after game-over resumes the timer).
+  // User-initiated toggles (handleTimerToggle) set ignoreNextTimerEffectRef to skip the double-flash.
+  useEffect(() => {
+    if (!isMountedTimerRef.current) {
+      isMountedTimerRef.current = true;
+      return;
+    }
+    if (ignoreNextTimerEffectRef.current) {
+      ignoreNextTimerEffectRef.current = false;
+      return;
+    }
+    const nextFlash: 'running' | 'paused' = timerRunning ? 'running' : 'paused';
+    if (flashTimeoutRef.current) clearTimeout(flashTimeoutRef.current);
+    const id = setTimeout(() => {
+      setTimerFlash(nextFlash);
+      flashTimeoutRef.current = setTimeout(() => setTimerFlash(null), 1000);
+    }, 0);
+    return () => clearTimeout(id);
+  }, [timerRunning]);
+
   function handleTimerToggle() {
     const nextFlash = timerRunning ? 'paused' : 'running';
     if (timerRunning) {
@@ -117,6 +143,7 @@ export function GameDetail({
     } else {
       onResumeTimer(game.id);
     }
+    ignoreNextTimerEffectRef.current = true;
     if (flashTimeoutRef.current) clearTimeout(flashTimeoutRef.current);
     setTimerFlash(nextFlash);
     flashTimeoutRef.current = setTimeout(() => setTimerFlash(null), 1000);
@@ -150,7 +177,6 @@ export function GameDetail({
   }
 
   const modeLabel = game.mode === 'highest' ? t.highestWins : t.lowestWins;
-  const timerRunning = !!game.timerStartedAt;
   // Use the snapshot captured by the interval to avoid calling Date.now() during render.
   // When the session matches, add elapsed; otherwise show only the accumulated duration.
   const sessionElapsed =
