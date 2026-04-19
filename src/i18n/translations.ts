@@ -94,6 +94,8 @@ export interface Translations {
   language: string;
   highContrast: string;
   paused: string;
+  running: string;
+  finished: string;
 }
 
 export const translations: Record<Language, Translations> = {
@@ -153,6 +155,8 @@ export const translations: Record<Language, Translations> = {
     pauseTimer: 'Pause timer',
     resumeTimer: 'Resume timer',
     paused: 'Paused',
+    running: 'Running',
+    finished: 'Finished',
   },
 
   de: {
@@ -211,6 +215,8 @@ export const translations: Record<Language, Translations> = {
     pauseTimer: 'Timer pausieren',
     resumeTimer: 'Timer fortsetzen',
     paused: 'Pausiert',
+    running: 'Läuft',
+    finished: 'Beendet',
   },
 
   zh: {
@@ -269,6 +275,8 @@ export const translations: Record<Language, Translations> = {
     pauseTimer: '暂停计时器',
     resumeTimer: '继续计时器',
     paused: '已暂停',
+    running: '进行中',
+    finished: '已完成',
   },
 
   hi: {
@@ -327,6 +335,8 @@ export const translations: Record<Language, Translations> = {
     pauseTimer: 'टाइमर रोकें',
     resumeTimer: 'टाइमर जारी रखें',
     paused: 'रोका गया',
+    running: 'चल रहा है',
+    finished: 'समाप्त',
   },
 
   es: {
@@ -385,6 +395,8 @@ export const translations: Record<Language, Translations> = {
     pauseTimer: 'Pausar temporizador',
     resumeTimer: 'Reanudar temporizador',
     paused: 'En pausa',
+    running: 'En curso',
+    finished: 'Terminada',
   },
 
   fr: {
@@ -443,6 +455,8 @@ export const translations: Record<Language, Translations> = {
     pauseTimer: 'Mettre en pause',
     resumeTimer: 'Reprendre le minuteur',
     paused: 'En pause',
+    running: 'En cours',
+    finished: 'Terminée',
   },
 
   ar: {
@@ -501,6 +515,8 @@ export const translations: Record<Language, Translations> = {
     pauseTimer: 'إيقاف المؤقت',
     resumeTimer: 'استئناف المؤقت',
     paused: 'متوقف مؤقتاً',
+    running: 'جارية',
+    finished: 'منتهية',
   },
 
   bn: {
@@ -559,6 +575,8 @@ export const translations: Record<Language, Translations> = {
     pauseTimer: 'টাইমার বিরতি',
     resumeTimer: 'টাইমার পুনরায় শুরু',
     paused: 'বিরতি',
+    running: 'চলছে',
+    finished: 'শেষ',
   },
 
   pt: {
@@ -617,6 +635,8 @@ export const translations: Record<Language, Translations> = {
     pauseTimer: 'Pausar cronômetro',
     resumeTimer: 'Retomar cronômetro',
     paused: 'Pausado',
+    running: 'Em andamento',
+    finished: 'Concluído',
   },
 
   ja: {
@@ -675,6 +695,8 @@ export const translations: Record<Language, Translations> = {
     pauseTimer: 'タイマーを一時停止',
     resumeTimer: 'タイマーを再開',
     paused: '一時停止中',
+    running: '進行中',
+    finished: '終了',
   },
 };
 

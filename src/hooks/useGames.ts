@@ -171,17 +171,32 @@ export function useGames() {
     setGames(prev => prev.map(g => {
       if (g.id !== gameId) return g;
       const currentRoundCount = Math.max(0, ...g.players.map(p => p.scores.length));
-      return {
-        ...g,
-        players: g.players.map(p => {
-          const missedRounds = currentRoundCount - p.scores.length;
-          const padding: null[] = missedRounds > 0 ? Array(missedRounds).fill(null) : [];
+      const updatedPlayers = g.players.map(p => {
+        const missedRounds = currentRoundCount - p.scores.length;
+        const padding: null[] = missedRounds > 0 ? Array(missedRounds).fill(null) : [];
+        return {
+          ...p,
+          scores: [...p.scores, ...padding, roundScores[p.id] ?? 0],
+        };
+      });
+      // Auto-finish the game if the target score is reached by at least one player
+      if (g.threshold !== null && !g.finishedAt) {
+        const totals = updatedPlayers.map(p => p.scores.reduce((a: number, b) => a + (b ?? 0), 0));
+        const thresholdReached = g.mode === 'highest'
+          ? Math.max(...totals) >= g.threshold
+          : totals.some(t => t >= (g.threshold as number));
+        if (thresholdReached) {
+          const now = Date.now();
           return {
-            ...p,
-            scores: [...p.scores, ...padding, roundScores[p.id] ?? 0],
+            ...g,
+            players: updatedPlayers,
+            finishedAt: now,
+            duration: (g.duration ?? 0) + (g.timerStartedAt ? now - g.timerStartedAt : 0),
+            timerStartedAt: undefined,
           };
-        }),
-      };
+        }
+      }
+      return { ...g, players: updatedPlayers };
     }));
   }, []);
 
