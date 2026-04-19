@@ -70,6 +70,8 @@ export function GameDetail({
   const [isEditingSettings, setIsEditingSettings] = useState(false);
   const [timerFlash, setTimerFlash] = useState<'running' | 'paused' | null>(null);
   const flashTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Capture whether the timer was already running at mount time (e.g. auto-resumed on navigation)
+  const mountTimerRunning = useRef(!!game.timerStartedAt);
 
   // Tick triggers a re-render every second while the timer is running, so the displayed time stays fresh.
   // The snapshot stores the (now, startedAt) pair captured at each tick to avoid calling Date.now() during render.
@@ -96,6 +98,16 @@ export function GameDetail({
     return () => {
       if (ref.current) clearTimeout(ref.current);
     };
+  }, []);
+
+  // Show a "running" flash when the component mounts with the timer already active (e.g. auto-resumed on navigation)
+  useEffect(() => {
+    if (!mountTimerRunning.current) return;
+    const id = setTimeout(() => {
+      setTimerFlash('running');
+      flashTimeoutRef.current = setTimeout(() => setTimerFlash(null), 1000);
+    }, 0);
+    return () => clearTimeout(id);
   }, []);
 
   function handleTimerToggle() {
@@ -221,7 +233,7 @@ export function GameDetail({
                     onClick={handleTimerToggle}
                     aria-label={timerRunning ? t.pauseTimer : t.resumeTimer}
                     aria-pressed={!timerRunning}
-                    color="primary"
+                    color="inherit"
                     size="large"
                   >
                     {timerRunning ? <PauseIcon /> : <PlayArrowIcon />}
