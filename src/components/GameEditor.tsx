@@ -102,8 +102,7 @@ export function GameEditor({ game, onSave, onCancel }: GameEditorProps) {
     if (!isNaN(val)) setThreshold(val);
   }
 
-  function handleSave(e: React.FormEvent) {
-    e.preventDefault();
+  function commitSave() {
     if (!canSave) return;
     const finalPlayers = players.map(p => {
       if (isEditing) {
@@ -113,6 +112,11 @@ export function GameEditor({ game, onSave, onCancel }: GameEditorProps) {
       return p;
     });
     onSave(gameName.trim(), finalPlayers, mode, threshold === '' ? null : threshold as number);
+  }
+
+  function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    commitSave();
   }
 
   function hintText(): string {
@@ -138,9 +142,19 @@ export function GameEditor({ game, onSave, onCancel }: GameEditorProps) {
           >
             <ArrowBackIcon sx={{ transform: 'var(--rtl-flip, none)' }} />
           </IconButton>
-          <Typography variant="h6" component="h1" sx={{ marginInlineStart: 1 }}>
+          <Typography variant="h6" component="h1" sx={{ marginInlineStart: 1, flex: 1 }}>
             {title}
           </Typography>
+          <Button
+            type="button"
+            onClick={commitSave}
+            disabled={!canSave}
+            color="inherit"
+            variant="text"
+            sx={{ fontWeight: 700, ml: 1 }}
+          >
+            {submitLabel}
+          </Button>
         </Toolbar>
       </AppBar>
 
@@ -324,29 +338,6 @@ export function GameEditor({ game, onSave, onCancel }: GameEditorProps) {
               {hintText()}
             </Alert>
           )}
-
-          {/* Actions */}
-          <Stack direction="row" spacing={2}>
-            <Button
-              type="button"
-              onClick={onCancel}
-              variant="outlined"
-              fullWidth
-              size="large"
-            >
-              {t.cancel}
-            </Button>
-            <Button
-              type="submit"
-              disabled={!canSave}
-              variant="contained"
-              fullWidth
-              size="large"
-              aria-describedby={!canSave && !isEditing ? 'ge-hint' : undefined}
-            >
-              {submitLabel}
-            </Button>
-          </Stack>
         </Stack>
       </Box>
     </Box>

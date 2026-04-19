@@ -20,6 +20,7 @@ function App() {
     addRound,
     deleteLastRound,
     resetGame,
+    finishGame,
   } = useGames();
 
   const { highContrast } = useHighContrast();
@@ -78,6 +79,7 @@ function App() {
           onDeleteLastRound={deleteLastRound}
           onResetGame={resetGame}
           onUpdateGame={updateGame}
+          onFinishGame={finishGame}
         />
       ) : (
         <GameList

@@ -11,6 +11,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Fab from '@mui/material/Fab';
+import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
@@ -25,6 +26,7 @@ interface ScoreTableProps {
   game: Game;
   onAddRound: (gameId: string, scores: Record<string, number>) => void;
   onDeleteLastRound: (gameId: string) => void;
+  onFinishGame?: () => void;
 }
 
 function getTotal(scores: (number | null)[]): number {
@@ -38,6 +40,17 @@ function getLeadersAndWinners(game: Game): { leaderIds: string[]; winnerIds: str
   if (roundCount === 0) return { leaderIds: [], winnerIds: [] };
 
   const totals = game.players.map(p => ({ id: p.id, total: getTotal(p.scores) }));
+
+  // Game manually finished (no threshold): pick winner(s) based on current totals
+  if (game.finishedAt && game.threshold === null) {
+    if (game.mode === 'highest') {
+      const maxTotal = Math.max(...totals.map(t => t.total));
+      return { leaderIds: [], winnerIds: totals.filter(t => t.total === maxTotal).map(p => p.id) };
+    } else {
+      const minTotal = Math.min(...totals.map(t => t.total));
+      return { leaderIds: [], winnerIds: totals.filter(t => t.total === minTotal).map(p => p.id) };
+    }
+  }
 
   if (game.mode === 'highest') {
     const maxTotal = Math.max(...totals.map(t => t.total));
@@ -61,7 +74,7 @@ function getLeadersAndWinners(game: Game): { leaderIds: string[]; winnerIds: str
 // Using 56 px (a round multiple of 8) leaves a small visual margin and aligns to the 8 px Material Design grid.
 const MIN_COL_WIDTH = 56;
 
-export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTableProps) {
+export function ScoreTable({ game, onAddRound, onDeleteLastRound, onFinishGame }: ScoreTableProps) {
   const { getGenderedT, isRTL } = useLanguage();
   const roundCount = Math.max(0, ...game.players.map(p => p.scores.length));
   const nextRound = roundCount + 1;
@@ -460,6 +473,22 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound }: ScoreTablePr
           />
         )}
       </Box>
+
+      {/* Finish Game button - shown only when there is no target score and the game is still ongoing */}
+      {onFinishGame && !gameOver && roundCount > 0 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 1 }}>
+          <Button
+            type="button"
+            variant="outlined"
+            color="secondary"
+            size="large"
+            startIcon={<EmojiEventsIcon />}
+            onClick={onFinishGame}
+          >
+            {t.finishGame}
+          </Button>
+        </Box>
+      )}
 
       {/* Fixed action buttons – FAB at bottom-end (consistent with home page) */}
       <Box
