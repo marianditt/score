@@ -49,7 +49,7 @@ function getLeadersAndWinners(game: Game): { leaderIds: string[]; winnerIds: str
   } else {
     const minTotal = Math.min(...totals.map(t => t.total));
     const bottomPlayers = totals.filter(t => t.total === minTotal);
-    const anyAboveThreshold = game.threshold !== null && totals.some(t => t.total >= game.threshold!);
+    const anyAboveThreshold = game.threshold !== null && totals.some(t => t.total >= (game.threshold as number));
     if (anyAboveThreshold) {
       return { leaderIds: [], winnerIds: bottomPlayers.map(p => p.id) };
     }
