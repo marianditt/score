@@ -12,4 +12,5 @@ export interface Game {
   threshold: number | null;
   mode: 'highest' | 'lowest';
   createdAt: number;
+  finishedAt?: number;
 }

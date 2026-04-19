@@ -25,10 +25,12 @@ interface GameDetailProps {
   onDeleteLastRound: (gameId: string) => void;
   onResetGame: (gameId: string) => void;
   onUpdateGame: (game: Game) => void;
+  onFinishGame: (gameId: string) => void;
 }
 
 function isGameOver(game: Game): boolean {
   if (game.players.length === 0) return false;
+  if (game.finishedAt) return true;
   const { threshold } = game;
   if (threshold === null) return false;
   const totals = game.players.map(p => p.scores.reduce((a: number, b) => a + (b ?? 0), 0));
@@ -43,6 +45,7 @@ export function GameDetail({
   onDeleteLastRound,
   onResetGame,
   onUpdateGame,
+  onFinishGame,
 }: GameDetailProps) {
   const { t, isRTL } = useLanguage();
   const [confirmReset, setConfirmReset] = useState(false);
@@ -180,6 +183,7 @@ export function GameDetail({
           game={game}
           onAddRound={onAddRound}
           onDeleteLastRound={onDeleteLastRound}
+          onFinishGame={game.threshold === null ? () => onFinishGame(game.id) : undefined}
         />
       </Box>
     </Box>

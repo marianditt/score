@@ -189,9 +189,16 @@ export function useGames() {
       if (g.id !== gameId) return g;
       return {
         ...g,
+        finishedAt: undefined,
         players: g.players.map(p => ({ ...p, scores: [] })),
       };
     }));
+  }, []);
+
+  const finishGame = useCallback((gameId: string) => {
+    setGames(prev => prev.map(g =>
+      g.id === gameId ? { ...g, finishedAt: Date.now() } : g
+    ));
   }, []);
 
   return {
@@ -206,5 +213,6 @@ export function useGames() {
     addRound,
     deleteLastRound,
     resetGame,
+    finishGame,
   };
 }
