@@ -474,7 +474,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound, onFinishGame }
         )}
       </Box>
 
-      {/* Finish Game button – shown only when there is no target score and the game is still ongoing */}
+      {/* Finish Game button - shown only when there is no target score and the game is still ongoing */}
       {onFinishGame && !gameOver && roundCount > 0 && (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 1 }}>
           <Button

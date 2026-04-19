@@ -102,8 +102,7 @@ export function GameEditor({ game, onSave, onCancel }: GameEditorProps) {
     if (!isNaN(val)) setThreshold(val);
   }
 
-  function handleSave(e?: React.FormEvent) {
-    e?.preventDefault();
+  function commitSave() {
     if (!canSave) return;
     const finalPlayers = players.map(p => {
       if (isEditing) {
@@ -113,6 +112,11 @@ export function GameEditor({ game, onSave, onCancel }: GameEditorProps) {
       return p;
     });
     onSave(gameName.trim(), finalPlayers, mode, threshold === '' ? null : threshold as number);
+  }
+
+  function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    commitSave();
   }
 
   function hintText(): string {
@@ -143,7 +147,7 @@ export function GameEditor({ game, onSave, onCancel }: GameEditorProps) {
           </Typography>
           <Button
             type="button"
-            onClick={() => handleSave()}
+            onClick={commitSave}
             disabled={!canSave}
             color="inherit"
             variant="text"
