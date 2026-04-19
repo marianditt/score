@@ -1,26 +1,29 @@
 import { useState, useEffect } from 'react';
 
-const HIGH_CONTRAST_KEY = 'score-tracker-high-contrast';
+// Derive high-contrast mode from the OS/browser "prefers-contrast: more" media query.
+// No manual toggle – the setting follows the system preference automatically.
+
+const mq = typeof window !== 'undefined'
+  ? window.matchMedia('(prefers-contrast: more)')
+  : null;
 
 // Apply immediately on module load so the attribute is present before React renders,
 // preventing a flash of unstyled content on reload.
-if (localStorage.getItem(HIGH_CONTRAST_KEY) === 'true') {
+if (mq?.matches) {
   document.documentElement.setAttribute('data-hc', 'true');
 }
 
 export function useHighContrast() {
-  const [highContrast, setHighContrastState] = useState<boolean>(() => {
-    return localStorage.getItem(HIGH_CONTRAST_KEY) === 'true';
-  });
+  const [highContrast, setHighContrast] = useState<boolean>(() => mq?.matches ?? false);
 
-  function setHighContrast(value: boolean) {
-    setHighContrastState(value);
-    localStorage.setItem(HIGH_CONTRAST_KEY, String(value));
-  }
-
-  function toggleHighContrast() {
-    setHighContrast(!highContrast);
-  }
+  useEffect(() => {
+    if (!mq) return;
+    function handleChange(e: MediaQueryListEvent) {
+      setHighContrast(e.matches);
+    }
+    mq.addEventListener('change', handleChange);
+    return () => mq.removeEventListener('change', handleChange);
+  }, []);
 
   useEffect(() => {
     if (highContrast) {
@@ -30,5 +33,5 @@ export function useHighContrast() {
     }
   }, [highContrast]);
 
-  return { highContrast, setHighContrast, toggleHighContrast };
+  return { highContrast };
 }

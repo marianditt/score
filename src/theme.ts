@@ -120,8 +120,17 @@ export const highContrastTheme = createTheme({
     },
     error: { main: '#FF4444', contrastText: '#000000' },
     background: { default: '#000000', paper: '#111111' },
-    text: { primary: '#FFFFFF', secondary: '#FFFF00' },
+    text: { primary: '#FFFFFF', secondary: '#FFFF00', disabled: 'rgba(255,255,255,0.7)' },
     divider: '#FFFFFF',
+    action: {
+      active: '#FFFFFF',
+      hover: 'rgba(255,255,255,0.1)',
+      selected: 'rgba(255,255,255,0.2)',
+      disabled: 'rgba(255,255,255,0.7)',
+      disabledBackground: 'rgba(255,255,255,0.12)',
+      disabledOpacity: 0.7,
+      focus: 'rgba(255,255,255,0.12)',
+    },
   },
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
@@ -159,7 +168,15 @@ export const highContrastTheme = createTheme({
     },
     MuiIconButton: {
       styleOverrides: {
-        root: { border: '2px solid #FFFFFF', borderRadius: 8 },
+        root: {
+          border: '2px solid #FFFFFF',
+          borderRadius: 8,
+          '&.Mui-disabled': {
+            borderColor: 'rgba(255,255,255,0.7)',
+            color: 'rgba(255,255,255,0.7)',
+            opacity: 1,
+          },
+        },
       },
     },
     MuiTableCell: {

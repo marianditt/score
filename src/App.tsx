@@ -22,7 +22,7 @@ function App() {
     resetGame,
   } = useGames();
 
-  const { highContrast, toggleHighContrast } = useHighContrast();
+  const { highContrast } = useHighContrast();
 
   const [view, setView] = useState<AppView>({ kind: 'list' });
 
@@ -85,8 +85,6 @@ function App() {
           onSelectGame={handleSelectGame}
           onNewGame={handleNewGame}
           onDeleteGame={deleteGame}
-          highContrast={highContrast}
-          onToggleHighContrast={toggleHighContrast}
         />
       )}
     </ThemeProvider>
