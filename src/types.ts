@@ -13,4 +13,8 @@ export interface Game {
   mode: 'highest' | 'lowest';
   createdAt: number;
   finishedAt?: number;
+  /** Accumulated play-time in milliseconds (paused or stopped portions). */
+  duration?: number;
+  /** Timestamp (ms since epoch) when the timer was last resumed; undefined when paused. */
+  timerStartedAt?: number;
 }

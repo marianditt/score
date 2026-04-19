@@ -21,6 +21,8 @@ function App() {
     deleteLastRound,
     resetGame,
     finishGame,
+    pauseGameTimer,
+    resumeGameTimer,
   } = useGames();
 
   const { highContrast } = useHighContrast();
@@ -80,6 +82,8 @@ function App() {
           onResetGame={resetGame}
           onUpdateGame={updateGame}
           onFinishGame={finishGame}
+          onPauseTimer={pauseGameTimer}
+          onResumeTimer={resumeGameTimer}
         />
       ) : (
         <GameList

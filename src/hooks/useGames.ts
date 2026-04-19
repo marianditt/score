@@ -4,7 +4,7 @@ import type { Game, Player } from '../types';
 const STORAGE_KEY = 'score-tracker-games';
 
 /** Current storage schema version. Increment this when a migration is needed. */
-const CURRENT_VERSION = 2;
+const CURRENT_VERSION = 3;
 
 interface StoredState {
   version: number;
@@ -31,6 +31,18 @@ function applyMigrations(state: StoredState): StoredState {
           ...p,
           gender: p.gender ?? 'male',
         })),
+      })),
+    };
+  }
+  // v2 → v3: add timer fields (duration defaults to 0, timerStartedAt undefined = paused for existing games)
+  if (state.version < 3) {
+    state = {
+      ...state,
+      version: 3,
+      games: state.games.map(g => ({
+        ...g,
+        duration: g.duration ?? 0,
+        timerStartedAt: g.timerStartedAt,
       })),
     };
   }
@@ -96,6 +108,8 @@ export function useGames() {
       threshold,
       mode,
       createdAt: Date.now(),
+      duration: 0,
+      timerStartedAt: Date.now(),
     };
     setGames(prev => [...prev, newGame]);
     return newGame;
@@ -174,8 +188,13 @@ export function useGames() {
   const deleteLastRound = useCallback((gameId: string) => {
     setGames(prev => prev.map(g => {
       if (g.id !== gameId) return g;
+      const wasFinished = !!g.finishedAt;
       return {
         ...g,
+        // Undo resumes a finished game
+        finishedAt: undefined,
+        // Restart the timer when undo clears a finished state
+        timerStartedAt: wasFinished ? Date.now() : g.timerStartedAt,
         players: g.players.map(p => ({
           ...p,
           scores: p.scores.slice(0, -1),
@@ -190,15 +209,42 @@ export function useGames() {
       return {
         ...g,
         finishedAt: undefined,
+        duration: 0,
+        timerStartedAt: Date.now(),
         players: g.players.map(p => ({ ...p, scores: [] })),
       };
     }));
   }, []);
 
   const finishGame = useCallback((gameId: string) => {
-    setGames(prev => prev.map(g =>
-      g.id === gameId ? { ...g, finishedAt: Date.now() } : g
-    ));
+    setGames(prev => prev.map(g => {
+      if (g.id !== gameId) return g;
+      const now = Date.now();
+      return {
+        ...g,
+        finishedAt: now,
+        duration: (g.duration ?? 0) + (g.timerStartedAt ? now - g.timerStartedAt : 0),
+        timerStartedAt: undefined,
+      };
+    }));
+  }, []);
+
+  const pauseGameTimer = useCallback((gameId: string) => {
+    setGames(prev => prev.map(g => {
+      if (g.id !== gameId || !g.timerStartedAt) return g;
+      return {
+        ...g,
+        duration: (g.duration ?? 0) + (Date.now() - g.timerStartedAt),
+        timerStartedAt: undefined,
+      };
+    }));
+  }, []);
+
+  const resumeGameTimer = useCallback((gameId: string) => {
+    setGames(prev => prev.map(g => {
+      if (g.id !== gameId || g.timerStartedAt || g.finishedAt) return g;
+      return { ...g, timerStartedAt: Date.now() };
+    }));
   }, []);
 
   return {
@@ -214,5 +260,7 @@ export function useGames() {
     deleteLastRound,
     resetGame,
     finishGame,
+    pauseGameTimer,
+    resumeGameTimer,
   };
 }
