@@ -29,9 +29,11 @@ interface GameDetailProps {
 
 function isGameOver(game: Game): boolean {
   if (game.players.length === 0) return false;
+  const { threshold } = game;
+  if (threshold === null) return false;
   const totals = game.players.map(p => p.scores.reduce((a: number, b) => a + (b ?? 0), 0));
-  if (game.mode === 'highest') return Math.max(...totals) >= game.threshold;
-  return totals.some(t => t >= game.threshold);
+  if (game.mode === 'highest') return Math.max(...totals) >= threshold;
+  return totals.some(t => t >= threshold);
 }
 
 export function GameDetail({
@@ -96,7 +98,7 @@ export function GameDetail({
               {game.name}
             </Typography>
             <Typography variant="caption" color="text.secondary" noWrap component="p">
-              {t.playersSuffix(game.players.length)} · {modeLabel} · {t.threshold} {game.threshold}
+              {t.playersSuffix(game.players.length)} · {modeLabel}{game.threshold !== null ? ` · ${t.threshold} ${game.threshold}` : ''}
             </Typography>
           </Box>
 

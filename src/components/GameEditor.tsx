@@ -33,7 +33,7 @@ import WomanIcon from '@mui/icons-material/Woman';
 
 interface GameEditorProps {
   game?: Game;
-  onSave: (name: string, players: Player[], mode: 'highest' | 'lowest', threshold: number) => void;
+  onSave: (name: string, players: Player[], mode: 'highest' | 'lowest', threshold: number | null) => void;
   onCancel: () => void;
 }
 
@@ -49,8 +49,7 @@ export function GameEditor({ game, onSave, onCancel }: GameEditorProps) {
   const [threshold, setThreshold] = useState<number | ''>(game?.threshold ?? '');
   const playerInputRef = useRef<HTMLInputElement>(null);
 
-  const thresholdValid = threshold !== '' && threshold > 0;
-  const canSave = gameName.trim().length > 0 && players.length > 0 && thresholdValid;
+  const canSave = gameName.trim().length > 0 && players.length > 0;
 
   function handleAddPlayer(e?: React.FormEvent) {
     e?.preventDefault();
@@ -113,13 +112,12 @@ export function GameEditor({ game, onSave, onCancel }: GameEditorProps) {
       }
       return p;
     });
-    onSave(gameName.trim(), finalPlayers, mode, threshold as number);
+    onSave(gameName.trim(), finalPlayers, mode, threshold === '' ? null : threshold as number);
   }
 
   function hintText(): string {
     if (!gameName.trim()) return t.enterGameNameHint;
     if (players.length === 0) return t.addPlayerHint;
-    if (!thresholdValid) return t.thresholdRequiredHint;
     return '';
   }
 

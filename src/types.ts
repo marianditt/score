@@ -9,7 +9,7 @@ export interface Game {
   id: string;
   name: string;
   players: Player[];
-  threshold: number;
+  threshold: number | null;
   mode: 'highest' | 'lowest';
   createdAt: number;
 }
