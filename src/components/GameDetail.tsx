@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { Game } from '../types';
 import { ScoreTable } from './ScoreTable';
 import { GameEditor } from './GameEditor';
@@ -14,6 +14,7 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 
+import Chip from '@mui/material/Chip';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
@@ -67,6 +68,9 @@ export function GameDetail({
   const { t, isRTL } = useLanguage();
   const [confirmReset, setConfirmReset] = useState(false);
   const [isEditingSettings, setIsEditingSettings] = useState(false);
+  const [timerFlash, setTimerFlash] = useState<'running' | 'paused' | null>(null);
+  const flashTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Tick triggers a re-render every second while the timer is running, so the displayed time stays fresh.
   // The snapshot stores the (now, startedAt) pair captured at each tick to avoid calling Date.now() during render.
   const [timerSnapshot, setTimerSnapshot] = useState<{ now: number; startedAt: number | undefined }>({
@@ -85,6 +89,26 @@ export function GameDetail({
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, [game.timerStartedAt]);
+
+  // Clear any pending flash timeout when the component unmounts to avoid state updates after unmount
+  useEffect(() => {
+    const ref = flashTimeoutRef;
+    return () => {
+      if (ref.current) clearTimeout(ref.current);
+    };
+  }, []);
+
+  function handleTimerToggle() {
+    const nextFlash = timerRunning ? 'paused' : 'running';
+    if (timerRunning) {
+      onPauseTimer(game.id);
+    } else {
+      onResumeTimer(game.id);
+    }
+    if (flashTimeoutRef.current) clearTimeout(flashTimeoutRef.current);
+    setTimerFlash(nextFlash);
+    flashTimeoutRef.current = setTimeout(() => setTimerFlash(null), 1000);
+  }
 
   function handleResetClick() {
     if (roundCount === 0) {
@@ -183,17 +207,27 @@ export function GameDetail({
 
             {/* Pause / Resume timer */}
             {!gameOver && (
-              <Tooltip title={timerRunning ? t.pauseTimer : t.resumeTimer}>
-                <IconButton
-                  onClick={() => timerRunning ? onPauseTimer(game.id) : onResumeTimer(game.id)}
-                  aria-label={timerRunning ? t.pauseTimer : t.resumeTimer}
-                  aria-pressed={!timerRunning}
-                  color="primary"
-                  size="large"
-                >
-                  {timerRunning ? <PauseIcon /> : <PlayArrowIcon />}
-                </IconButton>
-              </Tooltip>
+              <>
+                {timerFlash && (
+                  <Chip
+                    size="small"
+                    label={timerFlash === 'running' ? t.running : t.paused}
+                    color={timerFlash === 'running' ? 'success' : 'warning'}
+                    sx={{ fontSize: '0.7rem', mr: 0.5 }}
+                  />
+                )}
+                <Tooltip title={timerRunning ? t.pauseTimer : t.resumeTimer}>
+                  <IconButton
+                    onClick={handleTimerToggle}
+                    aria-label={timerRunning ? t.pauseTimer : t.resumeTimer}
+                    aria-pressed={!timerRunning}
+                    color="primary"
+                    size="large"
+                  >
+                    {timerRunning ? <PauseIcon /> : <PlayArrowIcon />}
+                  </IconButton>
+                </Tooltip>
+              </>
             )}
 
             {/* Edit settings */}

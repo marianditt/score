@@ -239,42 +239,44 @@ export function GameList({ games, onSelectGame, onNewGame, onDeleteGame }: GameL
                             </Box>
                           }
                           secondary={
-                            <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', mt: 0.25 }}>
-                              <Typography variant="caption" color="text.secondary" component="span">
-                                {t.playersSuffix(game.players.length)}
-                              </Typography>
-                              {game.players.length > 0 && (
-                                <>
-                                  <Typography variant="caption" color="text.disabled" component="span" aria-hidden="true">·</Typography>
+                            <Box component="span" sx={{ display: 'flex', flexDirection: 'column' }}>
+                              <Box component="span" sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', mt: 0.25 }}>
+                                <Typography variant="caption" color="text.secondary" component="span">
+                                  {t.playersSuffix(game.players.length)}
+                                </Typography>
+                                {game.players.length > 0 && (
+                                  <>
+                                    <Typography variant="caption" color="text.disabled" component="span" aria-hidden="true">·</Typography>
+                                    <Typography variant="caption" color="text.secondary" component="span">
+                                      {roundCount} {roundCount === 1 ? t.roundSingular : t.roundPlural}
+                                    </Typography>
+                                    <Typography variant="caption" color="text.disabled" component="span" aria-hidden="true">·</Typography>
+                                    <Typography variant="caption" color="text.secondary" component="span">
+                                      {formatDuration(durationMs)}
+                                    </Typography>
+                                  </>
+                                )}
+                              </Box>
+                              {person && personLabel && (
+                                <Box component="span" sx={{ mt: 0.25 }}>
                                   <Typography variant="caption" color="text.secondary" component="span">
-                                    {roundCount} {roundCount === 1 ? t.roundSingular : t.roundPlural}
+                                    {personLabel}:{' '}
                                   </Typography>
-                                  <Typography variant="caption" color="text.disabled" component="span" aria-hidden="true">·</Typography>
-                                  <Typography variant="caption" color="text.secondary" component="span">
-                                    {formatDuration(durationMs)}
+                                  <Typography
+                                    variant="caption"
+                                    component="span"
+                                    sx={{
+                                      color: person.type === 'winner' ? 'secondary.main' : 'primary.light',
+                                      fontWeight: 700,
+                                    }}
+                                  >
+                                    {person.name}
                                   </Typography>
-                                </>
+                                </Box>
                               )}
                             </Box>
                           }
                         />
-                        {person && personLabel && (
-                          <Box sx={{ mt: 0.25, mb: 0.25 }}>
-                            <Typography variant="caption" color="text.secondary" component="span">
-                              {personLabel}:{' '}
-                            </Typography>
-                            <Typography
-                              variant="caption"
-                              component="span"
-                              sx={{
-                                color: person.type === 'winner' ? 'secondary.main' : 'primary.light',
-                                fontWeight: 700,
-                              }}
-                            >
-                              {person.name}
-                            </Typography>
-                          </Box>
-                        )}
                       </ListItemButton>
 
                       {/* Delete controls */}
