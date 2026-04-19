@@ -61,8 +61,8 @@ function getPersonToShow(game: Game): { type: 'leader' | 'winner'; name: string;
     return { type: 'winner', name: best.name, gender: best.gender };
   }
 
-  // Not finished: show leader only for running multi-player games
-  if (!game.timerStartedAt || game.players.length <= 1) return null;
+  // Not finished: show leader for multi-player games with any scores
+  if (game.players.length <= 1) return null;
   return { type: 'leader', name: best.name, gender: best.gender };
 }
 
@@ -249,28 +249,32 @@ export function GameList({ games, onSelectGame, onNewGame, onDeleteGame }: GameL
                                   <Typography variant="caption" color="text.secondary" component="span">
                                     {roundCount} {roundCount === 1 ? t.roundSingular : t.roundPlural}
                                   </Typography>
-                                  <>
-                                    <Typography variant="caption" color="text.disabled" component="span" aria-hidden="true">·</Typography>
-                                    <Typography variant="caption" color="text.secondary" component="span">
-                                      {formatDuration(durationMs)}
-                                    </Typography>
-                                  </>
-                                  {person && personLabel && (
-                                    <>
-                                      <Typography variant="caption" color="text.disabled" component="span" aria-hidden="true">·</Typography>
-                                      <Typography variant="caption" component="span">
-                                        {personLabel}:{' '}
-                                        <Box component="span" sx={{ color: 'primary.light', fontWeight: 700 }}>
-                                          {person.name}
-                                        </Box>
-                                      </Typography>
-                                    </>
-                                  )}
+                                  <Typography variant="caption" color="text.disabled" component="span" aria-hidden="true">·</Typography>
+                                  <Typography variant="caption" color="text.secondary" component="span">
+                                    {formatDuration(durationMs)}
+                                  </Typography>
                                 </>
                               )}
                             </Box>
                           }
                         />
+                        {person && personLabel && (
+                          <Box sx={{ mt: 0.25, mb: 0.25 }}>
+                            <Typography variant="caption" color="text.secondary" component="span">
+                              {personLabel}:{' '}
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              component="span"
+                              sx={{
+                                color: person.type === 'winner' ? 'secondary.main' : 'primary.light',
+                                fontWeight: 700,
+                              }}
+                            >
+                              {person.name}
+                            </Typography>
+                          </Box>
+                        )}
                       </ListItemButton>
 
                       {/* Delete controls */}
