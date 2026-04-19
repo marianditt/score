@@ -1,4 +1,4 @@
-export const LANGUAGES = ['en', 'de', 'zh', 'hi', 'es', 'fr', 'ar', 'bn', 'pt'] as const;
+export const LANGUAGES = ['en', 'de', 'zh', 'hi', 'es', 'fr', 'ar', 'bn', 'pt', 'ja'] as const;
 export type Language = (typeof LANGUAGES)[number];
 
 export const LANGUAGE_NAMES: Record<Language, string> = {
@@ -11,6 +11,7 @@ export const LANGUAGE_NAMES: Record<Language, string> = {
   ar: 'العربية',
   bn: 'বাংলা',
   pt: 'Português',
+  ja: '日本語',
 };
 
 export const RTL_LANGUAGES: ReadonlySet<Language> = new Set(['ar']);
@@ -584,6 +585,61 @@ export const translations: Record<Language, Translations> = {
     finishGame: 'Encerrar',
     language: 'Idioma',
     highContrast: 'Alto contraste',
+  },
+
+  ja: {
+    appTitle: 'スコアトラッカー',
+    appSubtitle: 'ボードゲームのスコアを記録しよう',
+    newGame: '新しいゲーム',
+    noGamesTitle: 'ゲームがありません',
+    noGamesHint: '最初のゲームを作成して始めましょう！',
+    playerSingular: 'プレイヤー',
+    playerPlural: 'プレイヤー',
+    roundSingular: 'ラウンド',
+    roundPlural: 'ラウンド',
+    leader: 'リーダー',
+    highestWins: '↑ 高',
+    lowestWins: '↓ 低',
+    deleteConfirm: '削除しますか？',
+    yes: 'はい',
+    no: 'いいえ',
+    newGameSetup: '新しいゲームの設定',
+    gameName: 'ゲーム名',
+    gameNamePlaceholder: '例：カタン、チケット・トゥ・ライド…',
+    required: '必須',
+    playersSection: 'プレイヤー',
+    atLeastOne: '（1人以上必要）',
+    playerNamePlaceholder: 'プレイヤー名…',
+    add: '追加',
+    gameSettings: 'ゲーム設定',
+    winCondition: '勝利条件',
+    highestWinsButton: '↑ 最高点',
+    lowestWinsButton: '↓ 最低点',
+    scoreThreshold: '目標スコア',
+    scoreThresholdPlaceholder: '100',
+    cancel: 'キャンセル',
+    startGame: 'ゲーム開始',
+    enterGameNameHint: 'ゲーム名を入力して続けてください',
+    addPlayerHint: 'プレイヤーを1人以上追加してください',
+    thresholdRequiredHint: '0より大きい目標スコアを入力してください',
+    playersSuffix: (count) => `${count}人のプレイヤー`,
+    threshold: '目標',
+    reset: 'リセット',
+    yesReset: 'はい、リセット',
+    resetAllScoresQuestion: 'すべてのスコアをリセットしますか？',
+    cancelReset: 'キャンセル',
+    backToGameList: 'ゲームリストに戻る',
+    round: 'ラウンド',
+    total: '合計',
+    now: '現在',
+    roundLabel: (n) => `ラウンド${n}`,
+    winner: '勝者',
+    currentLeader: '現在のリーダー',
+    editSettings: '編集',
+    saveGameSettings: '保存',
+    finishGame: 'ゲーム終了',
+    language: '言語',
+    highContrast: 'ハイコントラスト',
   },
 };
 

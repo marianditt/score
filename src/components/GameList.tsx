@@ -38,7 +38,7 @@ function getTotal(scores: (number | null)[]): number {
 }
 
 function getLeader(game: Game): { name: string; gender: 'male' | 'female' } | null {
-  if (game.players.length === 0) return null;
+  if (game.players.length <= 1) return null;
   const allZero = game.players.every(p => p.scores.length === 0 || getTotal(p.scores) === 0);
   if (allZero) return null;
   const sorted = [...game.players].sort((a, b) => {
