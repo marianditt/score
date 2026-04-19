@@ -90,8 +90,9 @@ export function GameDetail({
     return () => {
       onPauseTimer(game.id);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [game.id]);
+  // Only run on mount/unmount: onPauseTimer/onResumeTimer are stable useCallback refs
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game.id, onPauseTimer, onResumeTimer]);
 
   // Resume timer when undo clears finishedAt
   useEffect(() => {

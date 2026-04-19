@@ -188,10 +188,13 @@ export function useGames() {
   const deleteLastRound = useCallback((gameId: string) => {
     setGames(prev => prev.map(g => {
       if (g.id !== gameId) return g;
+      const wasFinished = !!g.finishedAt;
       return {
         ...g,
         // Undo resumes a finished game
         finishedAt: undefined,
+        // Restart the timer when undo clears a finished state
+        timerStartedAt: wasFinished ? Date.now() : g.timerStartedAt,
         players: g.players.map(p => ({
           ...p,
           scores: p.scores.slice(0, -1),
