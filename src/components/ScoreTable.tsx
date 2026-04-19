@@ -42,14 +42,14 @@ function getLeadersAndWinners(game: Game): { leaderIds: string[]; winnerIds: str
   if (game.mode === 'highest') {
     const maxTotal = Math.max(...totals.map(t => t.total));
     const topPlayers = totals.filter(t => t.total === maxTotal);
-    if (maxTotal >= game.threshold) {
+    if (game.threshold !== null && maxTotal >= game.threshold) {
       return { leaderIds: [], winnerIds: topPlayers.map(p => p.id) };
     }
     return { leaderIds: topPlayers.map(p => p.id), winnerIds: [] };
   } else {
     const minTotal = Math.min(...totals.map(t => t.total));
     const bottomPlayers = totals.filter(t => t.total === minTotal);
-    const anyAboveThreshold = totals.some(t => t.total >= game.threshold);
+    const anyAboveThreshold = game.threshold !== null && totals.some(t => t.total >= game.threshold!);
     if (anyAboveThreshold) {
       return { leaderIds: [], winnerIds: bottomPlayers.map(p => p.id) };
     }

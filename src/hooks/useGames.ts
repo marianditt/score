@@ -87,7 +87,7 @@ export function useGames() {
     name: string,
     players: Player[],
     mode: 'highest' | 'lowest',
-    threshold: number,
+    threshold: number | null,
   ): Game => {
     const newGame: Game = {
       id: generateId(),

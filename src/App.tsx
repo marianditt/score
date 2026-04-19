@@ -43,7 +43,7 @@ function App() {
     setView({ kind: 'setup' });
   }
 
-  function handleSetupStart(name: string, players: Player[], mode: 'highest' | 'lowest', threshold: number) {
+  function handleSetupStart(name: string, players: Player[], mode: 'highest' | 'lowest', threshold: number | null) {
     const game: Game = createGame(name, players, mode, threshold);
     // Replace the setup history entry with the game entry so back goes straight to list
     window.history.replaceState(null, '');
