@@ -93,6 +93,7 @@ export interface Translations {
   // Preferences / Accessibility
   language: string;
   highContrast: string;
+  paused: string;
 }
 
 export const translations: Record<Language, Translations> = {
@@ -151,6 +152,7 @@ export const translations: Record<Language, Translations> = {
     highContrast: 'High Contrast',
     pauseTimer: 'Pause timer',
     resumeTimer: 'Resume timer',
+    paused: 'Paused',
   },
 
   de: {
@@ -208,6 +210,7 @@ export const translations: Record<Language, Translations> = {
     highContrast: 'Hoher Kontrast',
     pauseTimer: 'Timer pausieren',
     resumeTimer: 'Timer fortsetzen',
+    paused: 'Pausiert',
   },
 
   zh: {
@@ -265,6 +268,7 @@ export const translations: Record<Language, Translations> = {
     highContrast: '高对比度',
     pauseTimer: '暂停计时器',
     resumeTimer: '继续计时器',
+    paused: '已暂停',
   },
 
   hi: {
@@ -322,6 +326,7 @@ export const translations: Record<Language, Translations> = {
     highContrast: 'उच्च कंट्रास्ट',
     pauseTimer: 'टाइमर रोकें',
     resumeTimer: 'टाइमर जारी रखें',
+    paused: 'रोका गया',
   },
 
   es: {
@@ -379,6 +384,7 @@ export const translations: Record<Language, Translations> = {
     highContrast: 'Alto contraste',
     pauseTimer: 'Pausar temporizador',
     resumeTimer: 'Reanudar temporizador',
+    paused: 'En pausa',
   },
 
   fr: {
@@ -436,6 +442,7 @@ export const translations: Record<Language, Translations> = {
     highContrast: 'Contraste élevé',
     pauseTimer: 'Mettre en pause',
     resumeTimer: 'Reprendre le minuteur',
+    paused: 'En pause',
   },
 
   ar: {
@@ -493,6 +500,7 @@ export const translations: Record<Language, Translations> = {
     highContrast: 'تباين عالٍ',
     pauseTimer: 'إيقاف المؤقت',
     resumeTimer: 'استئناف المؤقت',
+    paused: 'متوقف مؤقتاً',
   },
 
   bn: {
@@ -550,6 +558,7 @@ export const translations: Record<Language, Translations> = {
     highContrast: 'উচ্চ কনট্রাস্ট',
     pauseTimer: 'টাইমার বিরতি',
     resumeTimer: 'টাইমার পুনরায় শুরু',
+    paused: 'বিরতি',
   },
 
   pt: {
@@ -607,6 +616,7 @@ export const translations: Record<Language, Translations> = {
     highContrast: 'Alto contraste',
     pauseTimer: 'Pausar cronômetro',
     resumeTimer: 'Retomar cronômetro',
+    paused: 'Pausado',
   },
 
   ja: {
@@ -664,6 +674,7 @@ export const translations: Record<Language, Translations> = {
     highContrast: 'ハイコントラスト',
     pauseTimer: 'タイマーを一時停止',
     resumeTimer: 'タイマーを再開',
+    paused: '一時停止中',
   },
 };
 

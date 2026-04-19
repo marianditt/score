@@ -253,7 +253,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound, onFinishGame }
                     >
                       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>
                         <Box sx={{ height: 20, display: 'flex', alignItems: 'center' }}>
-                          {winnerIds.includes(player.id) && (
+                          {winnerIds.includes(player.id) && game.players.length > 1 && (
                             <EmojiEventsIcon
                               fontSize="small"
                               sx={{ color: 'secondary.main' }}
@@ -485,8 +485,8 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound, onFinishGame }
         )}
       </Box>
 
-      {/* Finish Game button - shown only when there is no target score and the game is still ongoing */}
-      {onFinishGame && !gameOver && roundCount > 0 && (
+      {/* Finish Game button - shown when there is no target score */}
+      {onFinishGame && (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 1 }}>
           <Button
             type="button"
@@ -495,6 +495,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound, onFinishGame }
             size="large"
             startIcon={<EmojiEventsIcon />}
             onClick={onFinishGame}
+            disabled={gameOver}
           >
             {t.finishGame}
           </Button>

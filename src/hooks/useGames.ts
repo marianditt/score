@@ -127,7 +127,7 @@ export function useGames() {
     const player: Player = {
       id: generateId(),
       name,
-      gender: 'male',
+      gender: 'female',
       scores: [],
     };
     setGames(prev => prev.map(g =>
