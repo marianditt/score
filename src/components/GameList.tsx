@@ -61,8 +61,8 @@ function getPersonToShow(game: Game): { type: 'leader' | 'winner'; name: string;
     return { type: 'winner', name: best.name, gender: best.gender };
   }
 
-  // Not finished: show leader only for multi-player
-  if (game.players.length <= 1) return null;
+  // Not finished: show leader only for running multi-player games
+  if (!game.timerStartedAt || game.players.length <= 1) return null;
   return { type: 'leader', name: best.name, gender: best.gender };
 }
 
@@ -77,13 +77,13 @@ function formatDuration(ms: number): string {
   return `${mm}:${ss}`;
 }
 
-function getDisplayDuration(game: Game, nowMs: number): number | null {
+function getDisplayDuration(game: Game, nowMs: number): number {
   if (game.finishedAt) return game.duration ?? 0;
   if (game.timerStartedAt) {
     const elapsed = nowMs > game.timerStartedAt ? nowMs - game.timerStartedAt : 0;
     return (game.duration ?? 0) + elapsed;
   }
-  return null; // paused – don't show
+  return game.duration ?? 0; // paused – show accumulated time
 }
 
 export function GameList({ games, onSelectGame, onNewGame, onDeleteGame }: GameListProps) {
@@ -92,7 +92,7 @@ export function GameList({ games, onSelectGame, onNewGame, onDeleteGame }: GameL
   const [nowMs, setNowMs] = useState(0);
   const { t, language, setLanguage, availableLanguages, languageNames, getGenderedT } = useLanguage();
 
-  const hasRunningGames = games.some(g => !!g.timerStartedAt && !g.finishedAt);
+  const hasRunningGames = games.some(g => !!g.timerStartedAt && !isGameOver(g));
 
   useEffect(() => {
     if (!hasRunningGames) return;
@@ -189,7 +189,9 @@ export function GameList({ games, onSelectGame, onNewGame, onDeleteGame }: GameL
               const roundCount = game.players[0]?.scores.length ?? 0;
               const person = getPersonToShow(game);
               const modeLabel = game.mode === 'highest' ? t.highestWins : t.lowestWins;
-              const isPaused = !game.finishedAt && !game.timerStartedAt;
+              const gameFinished = isGameOver(game);
+              const isRunning = !gameFinished && !!game.timerStartedAt;
+              const isPaused = !gameFinished && !game.timerStartedAt;
               const durationMs = getDisplayDuration(game, nowMs);
               const personLabel = person
                 ? (person.type === 'winner' ? getGenderedT(person.gender).winner : getGenderedT(person.gender).leader)
@@ -225,8 +227,14 @@ export function GameList({ games, onSelectGame, onNewGame, onDeleteGame }: GameL
                                 {game.name}
                               </Typography>
                               <Chip label={modeLabel} size="small" variant="outlined" sx={{ fontSize: '0.7rem' }} />
+                              {isRunning && (
+                                <Chip label={t.running} size="small" variant="outlined" color="success" sx={{ fontSize: '0.7rem' }} />
+                              )}
                               {isPaused && (
                                 <Chip label={t.paused} size="small" variant="outlined" color="warning" sx={{ fontSize: '0.7rem' }} />
+                              )}
+                              {gameFinished && (
+                                <Chip label={t.finished} size="small" variant="outlined" color="default" sx={{ fontSize: '0.7rem' }} />
                               )}
                             </Box>
                           }
@@ -241,14 +249,12 @@ export function GameList({ games, onSelectGame, onNewGame, onDeleteGame }: GameL
                                   <Typography variant="caption" color="text.secondary" component="span">
                                     {roundCount} {roundCount === 1 ? t.roundSingular : t.roundPlural}
                                   </Typography>
-                                  {durationMs !== null && (
-                                    <>
-                                      <Typography variant="caption" color="text.disabled" component="span" aria-hidden="true">·</Typography>
-                                      <Typography variant="caption" color="text.secondary" component="span">
-                                        {formatDuration(durationMs)}
-                                      </Typography>
-                                    </>
-                                  )}
+                                  <>
+                                    <Typography variant="caption" color="text.disabled" component="span" aria-hidden="true">·</Typography>
+                                    <Typography variant="caption" color="text.secondary" component="span">
+                                      {formatDuration(durationMs)}
+                                    </Typography>
+                                  </>
                                   {person && personLabel && (
                                     <>
                                       <Typography variant="caption" color="text.disabled" component="span" aria-hidden="true">·</Typography>
