@@ -34,7 +34,7 @@ function getTotal(scores: (number | null)[]): number {
 }
 
 function getLeadersAndWinners(game: Game): { leaderIds: string[]; winnerIds: string[] } {
-  if (game.players.length === 0) return { leaderIds: [], winnerIds: [] };
+  if (game.players.length <= 1) return { leaderIds: [], winnerIds: [] };
 
   const roundCount = Math.max(0, ...game.players.map(p => p.scores.length));
   if (roundCount === 0) return { leaderIds: [], winnerIds: [] };
