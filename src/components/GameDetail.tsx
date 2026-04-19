@@ -75,6 +75,7 @@ export function GameDetail({
   });
 
   const gameOver = isGameOver(game);
+  const roundCount = Math.max(0, ...game.players.map(p => p.scores.length));
 
   // Tick every second while the timer is running so the displayed time stays current
   useEffect(() => {
@@ -85,11 +86,16 @@ export function GameDetail({
     return () => clearInterval(id);
   }, [game.timerStartedAt]);
 
-  function handleReset() {
-    if (!confirmReset) {
-      setConfirmReset(true);
+  function handleResetClick() {
+    if (roundCount === 0) {
+      // Nothing to lose yet — reset immediately without asking
+      onResetGame(game.id);
       return;
     }
+    setConfirmReset(true);
+  }
+
+  function handleReset() {
     onResetGame(game.id);
     setConfirmReset(false);
   }
@@ -182,7 +188,7 @@ export function GameDetail({
                   onClick={() => timerRunning ? onPauseTimer(game.id) : onResumeTimer(game.id)}
                   aria-label={timerRunning ? t.pauseTimer : t.resumeTimer}
                   aria-pressed={!timerRunning}
-                  color="inherit"
+                  color="primary"
                   size="large"
                 >
                   {timerRunning ? <PauseIcon /> : <PlayArrowIcon />}
@@ -196,7 +202,8 @@ export function GameDetail({
                 onClick={() => { setConfirmReset(false); setIsEditingSettings(true); }}
                 aria-label={t.editSettings}
                 color="inherit"
-                size="large"
+                size="medium"
+                sx={{ opacity: 0.6, '&:hover': { opacity: 1 } }}
               >
                 <EditIcon />
               </IconButton>
@@ -229,10 +236,11 @@ export function GameDetail({
             ) : (
               <Tooltip title={t.reset}>
                 <IconButton
-                  onClick={() => setConfirmReset(true)}
+                  onClick={handleResetClick}
                   aria-label={t.reset}
                   color="inherit"
-                  size="large"
+                  size="medium"
+                  sx={{ opacity: 0.6, '&:hover': { opacity: 1 } }}
                 >
                   <RestartAltIcon />
                 </IconButton>
