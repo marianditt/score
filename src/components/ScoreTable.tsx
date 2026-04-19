@@ -34,12 +34,23 @@ function getTotal(scores: (number | null)[]): number {
 }
 
 function getLeadersAndWinners(game: Game): { leaderIds: string[]; winnerIds: string[] } {
-  if (game.players.length <= 1) return { leaderIds: [], winnerIds: [] };
+  if (game.players.length === 0) return { leaderIds: [], winnerIds: [] };
 
   const roundCount = Math.max(0, ...game.players.map(p => p.scores.length));
   if (roundCount === 0) return { leaderIds: [], winnerIds: [] };
 
   const totals = game.players.map(p => ({ id: p.id, total: getTotal(p.scores) }));
+
+  // Single-player: no leader; winner when game finished or threshold reached
+  if (game.players.length === 1) {
+    const [{ id, total }] = totals;
+    if (game.finishedAt) return { leaderIds: [], winnerIds: [id] };
+    if (game.threshold !== null) {
+      if (game.mode === 'highest' && total >= game.threshold) return { leaderIds: [], winnerIds: [id] };
+      if (game.mode === 'lowest' && total >= game.threshold) return { leaderIds: [], winnerIds: [id] };
+    }
+    return { leaderIds: [], winnerIds: [] };
+  }
 
   // Game manually finished (no threshold): pick winner(s) based on current totals
   if (game.finishedAt && game.threshold === null) {
@@ -133,7 +144,7 @@ export function ScoreTable({ game, onAddRound, onDeleteLastRound, onFinishGame }
   }, [playerCount, isRTL]);
 
   const { leaderIds, winnerIds } = getLeadersAndWinners(game);
-  const gameOver = winnerIds.length > 0;
+  const gameOver = winnerIds.length > 0 || !!game.finishedAt;
 
   const t = getGenderedT('male');
 

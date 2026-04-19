@@ -86,6 +86,10 @@ export interface Translations {
   // Score Table actions
   finishGame: string;
 
+  // Timer
+  pauseTimer: string;
+  resumeTimer: string;
+
   // Preferences / Accessibility
   language: string;
   highContrast: string;
@@ -145,6 +149,8 @@ export const translations: Record<Language, Translations> = {
     finishGame: 'Finish Game',
     language: 'Language',
     highContrast: 'High Contrast',
+    pauseTimer: 'Pause timer',
+    resumeTimer: 'Resume timer',
   },
 
   de: {
@@ -200,6 +206,8 @@ export const translations: Record<Language, Translations> = {
     finishGame: 'Spiel beenden',
     language: 'Sprache',
     highContrast: 'Hoher Kontrast',
+    pauseTimer: 'Timer pausieren',
+    resumeTimer: 'Timer fortsetzen',
   },
 
   zh: {
@@ -255,6 +263,8 @@ export const translations: Record<Language, Translations> = {
     finishGame: '结束游戏',
     language: '语言',
     highContrast: '高对比度',
+    pauseTimer: '暂停计时器',
+    resumeTimer: '继续计时器',
   },
 
   hi: {
@@ -310,6 +320,8 @@ export const translations: Record<Language, Translations> = {
     finishGame: 'खेल समाप्त करें',
     language: 'भाषा',
     highContrast: 'उच्च कंट्रास्ट',
+    pauseTimer: 'टाइमर रोकें',
+    resumeTimer: 'टाइमर जारी रखें',
   },
 
   es: {
@@ -365,6 +377,8 @@ export const translations: Record<Language, Translations> = {
     finishGame: 'Terminar',
     language: 'Idioma',
     highContrast: 'Alto contraste',
+    pauseTimer: 'Pausar temporizador',
+    resumeTimer: 'Reanudar temporizador',
   },
 
   fr: {
@@ -420,6 +434,8 @@ export const translations: Record<Language, Translations> = {
     finishGame: 'Terminer',
     language: 'Langue',
     highContrast: 'Contraste élevé',
+    pauseTimer: 'Mettre en pause',
+    resumeTimer: 'Reprendre le minuteur',
   },
 
   ar: {
@@ -475,6 +491,8 @@ export const translations: Record<Language, Translations> = {
     finishGame: 'إنهاء اللعبة',
     language: 'اللغة',
     highContrast: 'تباين عالٍ',
+    pauseTimer: 'إيقاف المؤقت',
+    resumeTimer: 'استئناف المؤقت',
   },
 
   bn: {
@@ -530,6 +548,8 @@ export const translations: Record<Language, Translations> = {
     finishGame: 'খেলা শেষ',
     language: 'ভাষা',
     highContrast: 'উচ্চ কনট্রাস্ট',
+    pauseTimer: 'টাইমার বিরতি',
+    resumeTimer: 'টাইমার পুনরায় শুরু',
   },
 
   pt: {
@@ -585,6 +605,8 @@ export const translations: Record<Language, Translations> = {
     finishGame: 'Encerrar',
     language: 'Idioma',
     highContrast: 'Alto contraste',
+    pauseTimer: 'Pausar cronômetro',
+    resumeTimer: 'Retomar cronômetro',
   },
 
   ja: {
@@ -640,6 +662,8 @@ export const translations: Record<Language, Translations> = {
     finishGame: 'ゲーム終了',
     language: '言語',
     highContrast: 'ハイコントラスト',
+    pauseTimer: 'タイマーを一時停止',
+    resumeTimer: 'タイマーを再開',
   },
 };
 
