@@ -90,6 +90,14 @@ export function GameDetail({
     return () => clearInterval(id);
   }, [game.timerStartedAt]);
 
+  // Clear any pending flash timeout when the component unmounts to avoid state updates after unmount
+  useEffect(() => {
+    const ref = flashTimeoutRef;
+    return () => {
+      if (ref.current) clearTimeout(ref.current);
+    };
+  }, []);
+
   function handleTimerToggle() {
     const nextFlash = timerRunning ? 'paused' : 'running';
     if (timerRunning) {
