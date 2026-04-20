@@ -1,4 +1,4 @@
-export const LANGUAGES = ['en', 'de', 'zh', 'hi', 'es', 'fr', 'ar', 'bn', 'pt', 'ja'] as const;
+export const LANGUAGES = ['en', 'de', 'zh', 'hi', 'es', 'fr', 'ar', 'bn', 'pt', 'ja', 'ru'] as const;
 export type Language = (typeof LANGUAGES)[number];
 
 export const LANGUAGE_NAMES: Record<Language, string> = {
@@ -12,6 +12,7 @@ export const LANGUAGE_NAMES: Record<Language, string> = {
   bn: 'বাংলা',
   pt: 'Português',
   ja: '日本語',
+  ru: 'Русский',
 };
 
 export const RTL_LANGUAGES: ReadonlySet<Language> = new Set(['ar']);
@@ -698,10 +699,69 @@ export const translations: Record<Language, Translations> = {
     running: '進行中',
     finished: '終了',
   },
+
+  ru: {
+    appTitle: 'Счётчик очков',
+    appSubtitle: 'Отслеживайте очки во всех ваших настольных играх',
+    newGame: 'Новая игра',
+    noGamesTitle: 'Игр пока нет',
+    noGamesHint: 'Создайте первую игру, чтобы начать!',
+    playerSingular: 'игрок',
+    playerPlural: 'игроки',
+    roundSingular: 'раунд',
+    roundPlural: 'раунды',
+    leader: 'Лидер',
+    highestWins: '↑ Больше',
+    lowestWins: '↓ Меньше',
+    deleteConfirm: 'Удалить?',
+    yes: 'Да',
+    no: 'Нет',
+    newGameSetup: 'Настройка новой игры',
+    gameName: 'Название игры',
+    gameNamePlaceholder: 'напр. Колонизаторы, Ticket to Ride…',
+    required: 'Обязательно',
+    playersSection: 'Игроки',
+    atLeastOne: '(нужен хотя бы 1)',
+    playerNamePlaceholder: 'Имя игрока…',
+    add: 'Добавить',
+    gameSettings: 'Настройки игры',
+    winCondition: 'Условие победы',
+    highestWinsButton: '↑ Наибольшее',
+    lowestWinsButton: '↓ Наименьшее',
+    scoreThreshold: 'Целевой счёт',
+    scoreThresholdPlaceholder: '100',
+    cancel: 'Отмена',
+    startGame: 'Начать игру',
+    enterGameNameHint: 'Введите название игры, чтобы продолжить',
+    addPlayerHint: 'Добавьте хотя бы одного игрока, чтобы начать',
+    thresholdRequiredHint: 'Введите целевой счёт больше 0',
+    playersSuffix: (count) => `${count} ${count === 1 ? 'игрок' : 'игроки'}`,
+    threshold: 'цель',
+    reset: 'Сбросить',
+    yesReset: 'Да, сбросить',
+    resetAllScoresQuestion: 'Сбросить все очки?',
+    cancelReset: 'Отмена',
+    backToGameList: 'К списку игр',
+    round: 'Раунд',
+    total: 'Итого',
+    now: 'сейчас',
+    roundLabel: (n) => `Раунд ${n}`,
+    winner: 'Победитель',
+    currentLeader: 'Текущий лидер',
+    editSettings: 'Изменить',
+    saveGameSettings: 'Сохранить',
+    finishGame: 'Завершить игру',
+    language: 'Язык',
+    highContrast: 'Высокий контраст',
+    pauseTimer: 'Пауза таймера',
+    resumeTimer: 'Продолжить таймер',
+    paused: 'На паузе',
+    running: 'В процессе',
+    finished: 'Завершена',
+  },
 };
 
-/**
- * Female-form overrides for languages that grammatically differentiate gender.
+/** for languages that grammatically differentiate gender.
  * Only keys that differ from the default (male) translations need to be listed.
  */
 export const femaleTranslations: Partial<Record<Language, Partial<Translations>>> = {
